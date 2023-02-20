@@ -3,7 +3,24 @@ services:
     container_name: blue_bot_container
     image: blue_bot_image
     build:
-      context: .
+      context: bot
+      dockerfile: Dockerfile
+    environment:
+      DB_HOST: blue_bot_db
+      DB_NAME: db_blue_bot
+      DB_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      BOT_TOKEN: "${BOT_TOKEN}"
+    depends_on:
+      - blue_bot_db
+
+  blue_django:
+    container_name: blue_django_container
+    image: django_image
+    build:
+      context: django_blue
+      dockerfile: Dockerfile
     environment:
       DB_HOST: blue_bot_db
       DB_NAME: db_blue_bot
@@ -15,7 +32,7 @@ services:
       - blue_bot_db
 
   blue_bot_db:
-    container_name: postgres_container
+    container_name: blue_postgres_container
     image: postgres:14
     volumes:
       - postgres_data:/data/postgres
@@ -28,7 +45,7 @@ services:
       PGDATA: /data/postgres
 
   pgadmin:
-    container_name: pgadmin_container
+    container_name: blue_pgadmin_container
     image: dpage/pgadmin4
     profiles:
       - "dev"

@@ -26,4 +26,4 @@ ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 COPY requirements.txt ./
 RUN  pip install -r requirements.txt
 COPY . .
-CMD ["python3", "-m", "bot.main"]
+CMD ["python", "-m", "main_d"]
