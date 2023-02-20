@@ -1,0 +1,48 @@
+services:
+  lesson_bot:
+    container_name: lesson_bot_container
+    image: lesson_bot_image
+    build:
+      context: .
+    environment:
+      DB_HOST: bot_db
+      DB_NAME: dbbot
+      DB_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      BOT_TOKEN: "${BOT_TOKEN}"
+    depends_on:
+      - bot_db
+
+  bot_db:
+    container_name: postgres_container
+    image: postgres:14
+    volumes:
+      - postgres_data:/data/postgres
+    ports:
+      - "5432:5432"
+    environment:
+      DB_NAME: ${DB_NAME:-dbbot}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      PGDATA: /data/postgres
+
+  pgadmin:
+    container_name: pgadmin_container
+    image: dpage/pgadmin4
+    profiles:
+      - "dev"
+    restart: on-failure
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: lesson_bot
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+
+
