@@ -1,6 +1,6 @@
 # встановлення базового образу - https://docs.docker.com/engine/reference/builder/#from
 # https://medium.com/swlh/alpine-slim-stretch-buster-jessie-bullseye-bookworm-what-are-the-differences-in-docker-62171ed4531d
-FROM python:3.10-slim-buster AS base
+FROM python:3.11.2-slim-buster AS base
 # додаємо макроінформацію - хто автор і до кого задавать питання
 # - https://docs.docker.com/engine/reference/builder/#maintainer-deprecated
 LABEL maintainer="Vladyslav Tarhonskyi <vladislav.targonskii@gmail.com>"
