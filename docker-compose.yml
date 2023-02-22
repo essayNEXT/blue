@@ -5,13 +5,8 @@ services:
     build:
       context: bot
       dockerfile: Dockerfile
-    environment:
-      DB_HOST: blue_bot_db
-      DB_NAME: db_blue_bot
-      DB_PORT: 5432
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      BOT_TOKEN: "${BOT_TOKEN}"
+    env_file:
+      - ./.env.example
     depends_on:
       - blue_bot_db
 
@@ -21,13 +16,8 @@ services:
     build:
       context: django_blue
       dockerfile: Dockerfile
-    environment:
-      DB_HOST: blue_bot_db
-      DB_NAME: db_blue_bot
-      DB_PORT: 5432
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      BOT_TOKEN: "${BOT_TOKEN}"
+    env_file:
+      - ./.env.example
     depends_on:
       - blue_bot_db
 
@@ -38,11 +28,9 @@ services:
       - postgres_data:/data/postgres
     ports:
       - "5432:5432"
-    environment:
-      DB_NAME: ${DB_NAME:-db_blue_bot}
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      PGDATA: /data/postgres
+    env_file:
+    - ./.env.example
+
 
   pgadmin:
     container_name: blue_pgadmin_container
@@ -50,9 +38,8 @@ services:
     profiles:
       - "dev"
     restart: on-failure
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: blue_bot
+    env_file:
+      - ./.env.example
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     ports:
