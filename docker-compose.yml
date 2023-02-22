@@ -23,7 +23,7 @@ services:
 
   blue_bot_db:
     container_name: blue_postgres_container
-    image: postgres:14
+    image: postgres:15
     volumes:
       - postgres_data:/data/postgres
     ports:
