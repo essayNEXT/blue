@@ -1,0 +1,52 @@
+services:
+  blue_bot:
+    container_name: blue_bot_container
+    image: blue_bot_image
+    build:
+      context: bot
+      dockerfile: Dockerfile
+    env_file:
+      - ./.env
+    depends_on:
+      - blue_bot_db
+
+  blue_django:
+    container_name: blue_django_container
+    image: django_image
+    build:
+      context: django_blue
+      dockerfile: Dockerfile
+    env_file:
+      - ./.env
+    depends_on:
+      - blue_bot_db
+
+  blue_bot_db:
+    container_name: blue_postgres_container
+    image: postgres:15
+    volumes:
+      - postgres_data:/data/postgres
+    ports:
+      - "5432:5432"
+    env_file:
+    - ./.env
+
+
+  pgadmin:
+    container_name: blue_pgadmin_container
+    image: dpage/pgadmin4
+    profiles:
+      - "dev"
+    restart: on-failure
+    env_file:
+      - ./.env
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+
+
