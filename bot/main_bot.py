@@ -1,6 +1,5 @@
 import asyncio
 import logging
-from aiogram import loggers
 from aiogram import Bot, Dispatcher, Router
 from aiogram.types import Message
 from settings import BOT_TOKEN
@@ -23,10 +22,8 @@ async def cmd_start(message: Message):
 
 # Запуск бота
 async def main():
-    logging.basicConfig(level=logging.INFO)
     bot = Bot(token=BOT_TOKEN, parse_mode='HTML')
     dp = Dispatcher()
-
     dp.message.middleware.register(UserInDatabaseMiddleware())
     dp.include_router(router)
 
