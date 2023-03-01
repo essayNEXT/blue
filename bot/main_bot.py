@@ -1,10 +1,10 @@
 import asyncio
-import logging
 from aiogram import Bot, Dispatcher, Router
 from aiogram.types import Message
 from settings import BOT_TOKEN
 from aiogram.filters import Command
 from middlewares.start_middleware import UserInDatabaseMiddleware
+from handlers import registration
 
 router = Router()
 
@@ -25,6 +25,7 @@ async def main():
     bot = Bot(token=BOT_TOKEN, parse_mode='HTML')
     dp = Dispatcher()
     dp.message.middleware.register(UserInDatabaseMiddleware())
+    dp.include_router(registration.router)
     dp.include_router(router)
 
     await bot.delete_webhook(drop_pending_updates=True)
