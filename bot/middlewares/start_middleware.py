@@ -2,7 +2,10 @@ from utils.database_functions.get_from_db import is_in_database
 from typing import Callable, Dict, Any, Awaitable
 from aiogram import BaseMiddleware, types
 from aiogram.types import Message
+from aiogram.fsm.context import FSMContext
+
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
+
 
 class UserInDatabaseMiddleware(BaseMiddleware):
     """Мідлварь, який перевіряє наявність користувача в базі даних"""
@@ -10,7 +13,7 @@ class UserInDatabaseMiddleware(BaseMiddleware):
         self,
         handler: Callable[[Message, Dict[str, Any]], Awaitable[Any]],
         event: Message,
-        data: Dict[str, Any]
+        data: Dict[str, Any],
     ) -> Any:
         # Якщо користувач є в базі даних, або надсилає повідомлення в групі продовжуємо опрацювання апдейту
         if event.chat.type == 'group' or is_in_database(event.from_user.id):
