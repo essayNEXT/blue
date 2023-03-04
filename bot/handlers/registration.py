@@ -14,7 +14,6 @@ class StepsForm(StatesGroup):
     INITIAL_DATA = State()
     CHANGE_DATA = State()
     CONFIRM_DATA = State()
-    FINISH_STATE = State()
     F_NAME_CHANGED = State()
     L_NAME_CHANGED = State()
     EMAIL_CHANGED = State()
@@ -41,7 +40,6 @@ async def confirm_data(message: Message, state: FSMContext):
     user_state = await state.get_state()
 
     if user_state == StepsForm.INITIAL_DATA:
-        await message.reply("Контакт отримано!", reply_markup=types.ReplyKeyboardRemove())
         user_data = {
             "user_id": message.contact.user_id,
             "first_name": message.contact.first_name,
@@ -54,19 +52,19 @@ async def confirm_data(message: Message, state: FSMContext):
 
     elif user_state == StepsForm.F_NAME_CHANGED:
         user_data = await state.update_data(first_name=message.text)
-        await message.reply("Ім'я змінено!")
+        await message.answer("Ім'я змінено!")
 
     elif user_state == StepsForm.L_NAME_CHANGED:
         user_data = await state.update_data(last_name=message.text)
-        await message.reply("Прізвище змінено!")
+        await message.answer("Прізвище змінено!")
 
     elif user_state == StepsForm.EMAIL_CHANGED:
         user_data = await state.update_data(email=message.text)
-        await message.reply("Email змінено!")
+        await message.answer("Email змінено!")
 
     elif user_state == StepsForm.PHONE_CHANGED:
         user_data = await state.update_data(phone=message.text)
-        await message.reply("Телефон змінено!")
+        await message.answer("Телефон змінено!")
 
     await state.set_state(StepsForm.CONFIRM_DATA)
 

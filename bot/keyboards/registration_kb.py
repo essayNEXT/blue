@@ -9,7 +9,7 @@ def get_contact_kb() -> ReplyKeyboardMarkup:
     kb.button(text="Надіслати свій номер телефону", request_contact=True)
     kb.button(text="Відмінити реєстрацію")
     kb.adjust(2)
-    return kb.as_markup(resize_keyboard=True, input_field_placeholder="Оберіть відповідь")
+    return kb.as_markup(resize_keyboard=True, input_field_placeholder="Оберіть відповідь", one_time_keyboard=True)
 
 
 def get_accept_kb() -> InlineKeyboardMarkup:
