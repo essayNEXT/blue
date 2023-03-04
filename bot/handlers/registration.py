@@ -3,20 +3,22 @@ from aiogram.filters import Text
 from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
-from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
-from utils.database_functions.get_from_db import add_guest_to_db
+from utils.database_functions.get_from_db import add_guest_to_db, update_guest_in_db
 from aiogram import F
-from keyboards.registration_kb import get_accept_kb, get_contact_kb
+from keyboards.registration_kb import get_accept_kb, get_contact_kb, get_change_kb
 
 router = Router()
 
 
 class StepsForm(StatesGroup):
-    SEND_NAME = State()
-    SEND_LAST_NAME = State()
-    SEND_EMAIL = State()
-    WAIT_CONTACT = State()
+    INITIAL_DATA = State()
+    CHANGE_DATA = State()
+    CONFIRM_DATA = State()
     FINISH_STATE = State()
+    F_NAME_CHANGED = State()
+    L_NAME_CHANGED = State()
+    EMAIL_CHANGED = State()
+    PHONE_CHANGED = State()
 
 
 @router.callback_query(Text(text="registration"))
@@ -27,64 +29,85 @@ async def cmd_start(callback: CallbackQuery, state: FSMContext):
         "Тепер надішли мені свій номер. Або можеш все відмінити.\n",
         reply_markup=get_contact_kb())
     await callback.answer()
-    await state.set_state(StepsForm.WAIT_CONTACT)
+    await state.set_state(StepsForm.INITIAL_DATA)
 
 
-@router.message(StepsForm.WAIT_CONTACT, F.contact)
-async def get_name(message: Message, state: FSMContext):
-    user_data = {
-        "id": message.contact.user_id,
-        "first_name": message.contact.first_name,
-        "last_name": message.contact.last_name,
-        "email": "N/A",
-        "phone": message.contact.phone_number,
-    }
-    await add_guest_to_db(message.contact)
+@router.message(StepsForm.INITIAL_DATA, F.contact)
+@router.message(StepsForm.F_NAME_CHANGED)
+@router.message(StepsForm.L_NAME_CHANGED)
+@router.message(StepsForm.PHONE_CHANGED)
+@router.message(StepsForm.EMAIL_CHANGED)
+async def confirm_data(message: Message, state: FSMContext):
+    user_state = await state.get_state()
+
+    if user_state == StepsForm.INITIAL_DATA:
+        await message.reply("Контакт отримано!", reply_markup=types.ReplyKeyboardRemove())
+        user_data = {
+            "user_id": message.contact.user_id,
+            "first_name": message.contact.first_name,
+            "last_name": message.contact.last_name,
+            "email": "N/A",
+            "phone": message.contact.phone_number,
+        }
+        await state.set_data(user_data)
+        await add_guest_to_db(message.contact)
+
+    elif user_state == StepsForm.F_NAME_CHANGED:
+        user_data = await state.update_data(first_name=message.text)
+        await message.reply("Ім'я змінено!")
+
+    elif user_state == StepsForm.L_NAME_CHANGED:
+        user_data = await state.update_data(last_name=message.text)
+        await message.reply("Прізвище змінено!")
+
+    elif user_state == StepsForm.EMAIL_CHANGED:
+        user_data = await state.update_data(email=message.text)
+        await message.reply("Email змінено!")
+
+    elif user_state == StepsForm.PHONE_CHANGED:
+        user_data = await state.update_data(phone=message.text)
+        await message.reply("Телефон змінено!")
+
+    await state.set_state(StepsForm.CONFIRM_DATA)
 
     out_data = "\n".join([str(key) + ": " + str(value) for key, value in user_data.items()])
-    await message.reply("Дякую!", reply_markup=types.ReplyKeyboardRemove())
-    await message.answer("Залишити ці дані чи бажаєте щось змінити?\n" + out_data,
+    await message.answer("<b>Ваші облікові дані</b>\n" +
+                         out_data + "\nЗалишити ці дані чи бажаєте щось змінити?\n",
                          reply_markup=get_accept_kb())
-    # await state.set_state(StepsForm.FINISH_STATE)
 
 
-# # @router.message(StepsForm.GET_NAME)
-# # async def get_name(message: Message, state: FSMContext):
-# #     await message.answer(f'твое имя:\n{message.text}\nТеперь введи фамилию:')
-# #     await state.update_data(name=message.text)
-# #     await state.set_state(StepsForm.GET_SECOND_NAME)
-#
-# @router.message(StepsForm.GET_SECOND_NAME)
-# async def get_name(message: Message, state: FSMContext):
-#     await message.answer(f'твоя фамилия:\n{message.text}\nТеперь введи свой номер телефона:')
-#     await state.update_data(second_name=message.text)
-#     await state.set_state(StepsForm.GET_PHONE)
-#
-#
-# @router.message(StepsForm.GET_PHONE)
-# async def get_name(message: Message, state: FSMContext):
-#     await message.answer(f'твой номер телефона:\n{message.text}\nТеперь проверь свои данные:')
-#     context_data = await state.get_data()
-#     # await message.answer(f'сохраненные данные в машине сосотояний:\r\n{str(context_data)}')
-#     name = context_data.get('name')
-#     second_name = context_data.get('second_name')
-#     data_user = f'имя: {name}\n' \
-#                 f'фамилия: {second_name}\n' \
-#                 f'телефон: {message.text}\n'
-#
-#
-#     builder = InlineKeyboardBuilder()
-#     builder.add(types.InlineKeyboardButton(
-#         text="подтверждаю", callback_data="hi")
-#         )
-#     await message.answer(
-#         data_user,
-#         reply_markup=builder.as_markup()
-#         )
-#
-#     await state.clear()
-#
-#
-# @router.message(Text(text="выход"))
-# async def cmd_start(message: Message):
-#     await message.answer(f"До встречи {message.from_user.username}")
+@router.callback_query(StepsForm.CONFIRM_DATA, Text(text="confirm"))
+async def get_name(callback: CallbackQuery, state: FSMContext):
+    """Хендлер, що ловить колбек при натисканні кнопки Залишити від користувача"""
+    await callback.answer()
+    user_data = await state.get_data()
+    await update_guest_in_db(callback.from_user.id, user_data)
+    await callback.message.answer(f"Ви зареєстровані! Вітаю!")
+    await state.clear()
+
+
+@router.callback_query(StepsForm.CONFIRM_DATA, Text(text="change"))
+async def get_name(callback: CallbackQuery, state: FSMContext):
+    """Хендлер, що ловить колбек при натисканні кнопки Змінити від користувача"""
+    await callback.answer()
+    await callback.message.answer(f"Що саме бажаєте змінити?", reply_markup=get_change_kb())
+    await state.set_state(StepsForm.CHANGE_DATA)
+
+
+@router.callback_query(StepsForm.CHANGE_DATA, Text(startswith="change_"))
+async def get_name(callback: CallbackQuery, state: FSMContext):
+    """Хендлер, що ловить колбек при натисканні кнопки зміни визначеного атрибута від користувача"""
+    await callback.answer()
+
+    if callback.data == "change_first_name":
+        await callback.message.answer("Введи ім'я:")
+        await state.set_state(StepsForm.F_NAME_CHANGED)
+    elif callback.data == "change_last_name":
+        await callback.message.answer("Введіть прізвище:")
+        await state.set_state(StepsForm.L_NAME_CHANGED)
+    elif callback.data == "change_email":
+        await callback.message.answer("Введіть свій email:")
+        await state.set_state(StepsForm.EMAIL_CHANGED)
+    elif callback.data == "change_phone":
+        await callback.message.answer("Введіть свій номер телефону:")
+        await state.set_state(StepsForm.PHONE_CHANGED)

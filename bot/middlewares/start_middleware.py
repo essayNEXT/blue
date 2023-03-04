@@ -14,10 +14,11 @@ class UserInDatabaseMiddleware(BaseMiddleware):
         data: Dict[str, Any],
     ) -> Any:
 
+        # Якщо користувач натискає кнопку "Відмінити реєстрацію" перериваємо опрацювання
         if event.text == "Відмінити реєстрацію":
             return event.answer("До зустрічі!", reply_markup=types.ReplyKeyboardRemove())
 
-        # Якщо користувач є в базі даних, або надсилає повідомлення в групі продовжуємо опрацювання апдейту
+        # Якщо користувач є в базі даних, або надсилає повідомлення в групі продовжуємо опрацювання івенту
         if event.chat.type == 'group' or user_is_in_database(event.from_user.id) or event.contact:
             return await handler(event, data)
 

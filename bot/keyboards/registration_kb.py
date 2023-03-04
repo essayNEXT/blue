@@ -18,3 +18,12 @@ def get_accept_kb() -> InlineKeyboardMarkup:
     kb.button(text="Змінити", callback_data="change")
     return kb.as_markup()
 
+
+def get_change_kb() -> InlineKeyboardMarkup:
+    kb = InlineKeyboardBuilder()
+    kb.button(text="Ім'я", callback_data="change_first_name")
+    kb.button(text="Прізвище", callback_data="change_last_name")
+    kb.button(text="Email", callback_data="change_email")
+    kb.button(text="Номер телефону", callback_data="change_phone")
+    kb.adjust(2)
+    return kb.as_markup()
