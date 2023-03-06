@@ -32,6 +32,6 @@ class UserInDatabaseMiddleware(BaseMiddleware):
         await event.answer(
             f"Привіт, {event.from_user.full_name}!\n"
             "Щоб скористатись моїми послугами потрібно зареєструватись.\n",
-            reply_markup=builder.as_markup(one_time_keyboard=True)
+            reply_markup=builder.as_markup()
         )
         return
