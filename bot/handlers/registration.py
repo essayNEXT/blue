@@ -6,7 +6,7 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
 from utils.database_functions.get_from_db import add_guest_to_db, update_guest_in_db
 from keyboards.registration_kb import get_accept_kb, get_contact_kb, get_change_kb
-from encodings import utf_8
+
 
 router = Router()
 
