@@ -5,14 +5,16 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
 
 def get_contact_kb() -> ReplyKeyboardMarkup:
+    """Клавіатура виводиться в меню при натисканні кнопки 'зареєструватись'."""
     kb = ReplyKeyboardBuilder()
-    kb.button(text="Надіслати свій номер телефону", request_contact=True)
-    kb.button(text="Відмінити реєстрацію")
+    kb.button(text="Надіслати свій контакт", request_contact=True)
+    kb.button(text="Скасувати реєстрацію")
     kb.adjust(2)
     return kb.as_markup(resize_keyboard=True, input_field_placeholder="Оберіть відповідь", one_time_keyboard=True)
 
 
 def get_accept_kb() -> InlineKeyboardMarkup:
+    """Інлайн-клавіатура виводиться в повідомленні після надсилання контакту або після зміни даних."""
     kb = InlineKeyboardBuilder()
     kb.button(text="Залишити", callback_data="confirm")
     kb.button(text="Змінити", callback_data="change")
@@ -20,6 +22,7 @@ def get_accept_kb() -> InlineKeyboardMarkup:
 
 
 def get_change_kb() -> InlineKeyboardMarkup:
+    """Інлайн-клавіатура виводиться в повідомленні після натискання кнопки 'змінити'."""
     kb = InlineKeyboardBuilder()
     kb.button(text="Ім'я", callback_data="change_first_name")
     kb.button(text="Прізвище", callback_data="change_last_name")
