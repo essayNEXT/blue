@@ -10,16 +10,16 @@ services:
     depends_on:
       - blue_bot_db
 
-  blue_django:
-    container_name: blue_django_container
-    image: django_image
-    build:
-      context: django_blue
-      dockerfile: Dockerfile
-    env_file:
-      - ./.env
-    depends_on:
-      - blue_bot_db
+#  blue_django:
+#    container_name: blue_django_container
+#    image: django_image
+#    build:
+#      context: django_blue
+#      dockerfile: Dockerfile
+#    env_file:
+#      - ./.env
+#    depends_on:
+#      - blue_bot_db
 
   blue_bot_db:
     container_name: blue_postgres_container
@@ -35,8 +35,8 @@ services:
   pgadmin:
     container_name: blue_pgadmin_container
     image: dpage/pgadmin4
-    profiles:
-      - "dev"
+#    profiles:
+#      - "dev"
     restart: on-failure
     env_file:
       - ./.env
