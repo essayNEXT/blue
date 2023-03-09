@@ -23,20 +23,20 @@ services:
 
   blue_bot_db:
     container_name: blue_postgres_container
-    image: postgres:15
-    volumes:
-      - postgres_data:/data/postgres
+    image: postgres:alpine3.17
+#    volumes:
+#      - postgres_data:/data/postgres
     ports:
       - "5432:5432"
     env_file:
-    - ./.env
+    - .env
 
 
   pgadmin:
     container_name: blue_pgadmin_container
     image: dpage/pgadmin4
-#    profiles:
-#      - "dev"
+    profiles:
+      - "dev"
     restart: on-failure
     env_file:
       - ./.env
