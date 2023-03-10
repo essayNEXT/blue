@@ -10,5 +10,5 @@ port = os.environ['DB_PORT']
 
 con = psycopg2.connect(user=user, password=password, host=host, port=port)
 con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-cursor= con.cursor()
+cursor = con.cursor()
 cursor.execute('CREATE DATABASE dbbot')
