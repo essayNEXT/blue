@@ -15,6 +15,7 @@ def execut_query(query, connection=con):
 create_message_table = """
 CREATE TABLE IF NOT EXISTS message(
 message TEXT,
-userid INTEGER)"""
+userid INTEGER,
+message_time TIMESTAMP)"""
 
 execut_query(create_message_table)
