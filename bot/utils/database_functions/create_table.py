@@ -2,7 +2,7 @@ from .connection import con
 from psycopg2 import OperationalError
 
 
-def execut_query(query, connection=con):
+def execute_query(query, connection=con):
     connection.autocommit = True
     cursor = connection.cursor()
     try:
@@ -18,4 +18,4 @@ message TEXT,
 userid INTEGER,
 message_time TIMESTAMP)"""
 
-execut_query(create_message_table)
+execute_query(create_message_table)

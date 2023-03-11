@@ -1,7 +1,7 @@
 from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message
-from utils.database_functions.create_table import execut_query
+from utils.database_functions.create_table import execute_query
 from datetime import datetime
 from utils.database_functions.connection import con
 
@@ -21,6 +21,6 @@ async def echo(message: Message):
     date = datetime.now().isoformat(" ")
     insert_query = (f"INSERT INTO message (message, userid, message_time) "
                     f"VALUES ('{message.text}','{message.from_user.id}','{date}')")
-    execut_query(insert_query)
+    execute_query(insert_query)
 
     await message.answer(message.text)
