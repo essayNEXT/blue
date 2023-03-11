@@ -1,32 +1,18 @@
 import asyncio
-import logging
-from aiogram import Bot, Dispatcher, Router
-from aiogram.types import Message
+from aiogram import Dispatcher, Bot
 from settings import BOT_TOKEN
-from aiogram.filters import Command
-
-router = Router()
-
-
-@router.message(Command(commands=["start"]))
-async def cmd_start(message: Message):
-    await message.answer("Hello!")
+import logging
+from handlers import echo
 
 
-@router.message()
-async def cmd_start(message: Message):
-    await message.answer(f"Від користувача - {message.from_user.id}\n"
-                         f"{message.text}")
-
-
-# Запуск бота
 async def main():
+    """ Функція запуска бота"""
     logging.basicConfig(level=logging.INFO)
-    bot = Bot(token=BOT_TOKEN, parse_mode='HTML')
+    bot = Bot(token= BOT_TOKEN)
     dp = Dispatcher()
-    dp.include_router(router)
+    dp.include_router(echo.router)
     await bot.delete_webhook(drop_pending_updates=True)
-    await dp.start_polling(bot)
+    await dp.start_polling(bot, skip_updates=True)
 
 
 if __name__ == "__main__":
