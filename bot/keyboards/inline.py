@@ -1,5 +1,5 @@
 from typing import List, Optional
-from aiogram.utils.keyboard import InlineKeyboardButton, InlineKeyboardMarkup, InlineKeyboardBuilder
+from aiogram.utils.keyboard import InlineKeyboardButton, InlineKeyboardMarkup
 from dataclasses import dataclass
 
 
