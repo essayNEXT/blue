@@ -3,12 +3,13 @@ from aiogram import Dispatcher, Bot
 from settings import BOT_TOKEN
 import logging
 from handlers import echo, inline_kb
-
+from utils.commands import set_commands
 
 async def main():
     """ Функція запуска бота"""
     logging.basicConfig(level=logging.INFO)
     bot = Bot(token=BOT_TOKEN)
+    await set_commands(bot)
     dp = Dispatcher()
     dp.include_router(inline_kb.router)
     dp.include_router(echo.router)

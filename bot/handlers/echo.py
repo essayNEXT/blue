@@ -13,7 +13,7 @@ async def cmd_read_last(message: Message):
     cursor = con.cursor()
     cursor.execute("SELECT message FROM message ORDER BY message_time DESC LIMIT 1")
     val = cursor.fetchone()
-    await message.answer(f'Последнее сообщение в БД "{val[0]}"')
+    await message.answer(f'Останнє повідомлення в БД "{val[0]}"')
 
 
 @router.message()
