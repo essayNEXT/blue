@@ -5,6 +5,7 @@ import logging
 from handlers import echo, inline_kb
 from utils.commands import set_commands
 
+
 async def main():
     """ Функція запуска бота"""
     logging.basicConfig(level=logging.INFO)
