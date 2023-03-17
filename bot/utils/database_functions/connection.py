@@ -1,7 +1,7 @@
 from psycopg2 import OperationalError, connect
 import os
 
-name = os.environ['DB_NAME']
+name = os.environ['POSTGRES_DB']
 user = os.environ['POSTGRES_USER']
 password = os.environ['POSTGRES_PASSWORD']
 host = os.environ['DB_HOST']
@@ -24,9 +24,10 @@ def create_connection(
             port=db_port,
         )
         print('Connection to DB successfull')
-        print(db_name,db_port,db_host,db_password,db_user )
+        print(db_name, db_port, db_host, db_password, db_user)
     except OperationalError as e:
         print(f'Error connecting {e}')
+        print(db_name, db_port, db_host, db_password, db_user)
         connection = None
     return connection
 

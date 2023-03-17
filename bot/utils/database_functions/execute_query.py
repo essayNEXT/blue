@@ -10,12 +10,3 @@ def execute_query(query, connection=con):
         print('Query executed successfully')
     except OperationalError as e:
         print(f'Error{e}')
-
-
-create_message_table = """
-CREATE TABLE IF NOT EXISTS message(
-message TEXT,
-userid INTEGER,
-message_time TIMESTAMP)"""
-
-execute_query(create_message_table)

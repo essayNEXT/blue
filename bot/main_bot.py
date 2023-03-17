@@ -7,7 +7,7 @@ from utils.commands import set_commands
 
 
 async def main():
-    """ Функція запуска бота"""
+    """ Функція запуску бота"""
     logging.basicConfig(level=logging.INFO)
     bot = Bot(token=BOT_TOKEN)
     await set_commands(bot)
