@@ -22,14 +22,17 @@ services:
 #      - blue_bot_db
 
   blue_bot_db:
-    container_name: blue_postgres_container
+    container_name: ${DB_HOST}
     image: postgres:alpine3.17
-#    volumes:
-#      - postgres_data:/data/postgres
+    volumes:
+      - ./create_table.sql:/docker-entrypoint-initdb.d/create_table.sql
+      - postgres_data:/var/lib/postgresql/data
+
     ports:
       - "5432:5432"
     env_file:
     - .env
+
 
 
   pgadmin:
