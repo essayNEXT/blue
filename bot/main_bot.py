@@ -6,9 +6,9 @@ from handlers import echo
 
 
 async def main():
-    """ Функція запуска бота"""
+    """ Функція запуску бота"""
     logging.basicConfig(level=logging.INFO)
-    bot = Bot(token= BOT_TOKEN)
+    bot = Bot(token=BOT_TOKEN)
     dp = Dispatcher()
     dp.include_router(echo.router)
     await bot.delete_webhook(drop_pending_updates=True)
