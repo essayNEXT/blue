@@ -58,8 +58,8 @@ class TmpStorage(dict):
                     f"WARNING: in object {self} deleted element with key = {key_for_del}. \
     The lifetime of this element is less than {self.min_lifetime}. You may need to increase the storage size."
                 )
-                self.__delitem__(__key, __value)
-            return super().__setitem__(__key, __value)
+                self.__delitem__(__key)
+        return super().__setitem__(__key, __value)
 
     def __getitem__(self, __key: _KT) -> _VT:
         """Повертає елемент зі сховища за його ключем, якщо час існування цього існування менший ніж self.max_lifetime.
@@ -71,6 +71,7 @@ class TmpStorage(dict):
                 - елемент зі словника
                 - час внесення елементу в сховище self._creation_time
                 - ключ із черги
+                - створює виняток KeyError з відповідним повідомленням
         """
         try:
             result = super().__getitem__(__key)
