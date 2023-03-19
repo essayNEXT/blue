@@ -33,8 +33,6 @@ services:
     env_file:
     - .env
 
-
-
   pgadmin:
     container_name: blue_pgadmin_container
     image: dpage/pgadmin4
@@ -51,5 +49,3 @@ services:
 volumes:
   postgres_data:
   pgadmin_data:
-
-
