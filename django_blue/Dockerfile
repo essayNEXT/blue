@@ -1,4 +1,4 @@
-FROM python:python:alpine3.17
+FROM python:alpine3.17
 LABEL maintainer="Onyshchenko Serhii"
 ARG UID=1000
 ARG GID=1000
