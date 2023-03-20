@@ -13,13 +13,10 @@ services:
   blue_django:
     container_name: blue_django_container
     image: django_image
-    build:
-      context: django_blue
-      dockerfile: Dockerfile
-    command:
-      - python manage.py runserver 0.0.0.0:8000
+    build: django_blue/
+    command: python manage.py runserver 0.0.0.0:8000
     volumes:
-      - .django_blue/:/usr/src/django_blue
+      - ./django_blue/:/usr/src/django_blue
     ports:
       - '8000:8000'
     env_file:

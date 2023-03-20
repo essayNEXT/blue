@@ -1,9 +1,10 @@
-FROM python:alpine3.17
+FROM python:alpine3.17 AS base
 LABEL maintainer="Onyshchenko Serhii"
 ARG UID=1000
 ARG GID=1000
 ENV UID=${UID}
 ENV GID=${GID}
+RUN apk add --no-cache shadow
 RUN useradd -m -u $UID docker_user
 USER docker_user
 
