@@ -6,7 +6,7 @@ user = os.environ['POSTGRES_USER']
 password = os.environ['POSTGRES_PASSWORD']
 host = os.environ['DB_HOST']
 port = os.environ['DB_PORT']
-a = os.environ.get('')
+
 
 def create_connection(
         db_name=name,
