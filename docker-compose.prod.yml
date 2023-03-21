@@ -19,6 +19,8 @@ services:
       context: django_blue/
       dockerfile: Dockerfile.prod
     command: gunicorn admin_bot.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - static_volume:/home/app/web/staticfiles
     expose:
       - 8000
     env_file:
@@ -54,6 +56,8 @@ services:
       - "5050:80"
   nginx:
     build: ./nginx
+    volumes:
+      - static_volume:/home/app/web/staticfiles
     ports:
       - '1337:80'
     depends_on:
@@ -62,5 +66,7 @@ services:
 volumes:
   postgres_data:
   pgadmin_data:
+  static_volume:
+
 
 
