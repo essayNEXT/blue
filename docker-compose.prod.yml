@@ -56,7 +56,8 @@ services:
     build: ./nginx
     ports:
       - '1337:80'
-    depends_on: blue_django
+    depends_on:
+      - blue_django
 
 volumes:
   postgres_data:
