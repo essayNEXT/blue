@@ -47,7 +47,7 @@ services:
       - "dev"
     restart: on-failure
     env_file:
-      - ./.env
+      - ./.env.prod
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     ports:
