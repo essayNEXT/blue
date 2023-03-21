@@ -20,8 +20,8 @@ router = Router()
 async def get_inline_kb(event: Message, state: FSMContext, tmp_storage: TmpStorage):
     """Хендлер реагує на команду /inline_kb та створює об'єкт інлайн клавіатури.
     Клавіатура складається з 20 скролінгових кнопок та двох статичних.
-    Максимальна кількість видимих скролінг кнопок визначається при створенні об'єкта CombineInlineKeyboardGenerator.
-    Екземпляр клавіатури тимчасово зберігається в сховищі стану. Далі буде реалізоване інше сховище."""
+    Максимальна кількість 'видимих' скролінг кнопок визначається при створенні об'єкта CombineInlineKeyboardGenerator.
+    Екземпляр клавіатури тимчасово зберігається в сховищі tmp_storage: TmpStorage диспетчера."""
     print(f"tmp_storage: {tmp_storage}")
     print(f"type of tmp_storage: {type(tmp_storage)}")
     print(f"id of tmp_storage: {id(tmp_storage)}")
@@ -72,7 +72,7 @@ async def get_inline_kb(event: Message, state: FSMContext, tmp_storage: TmpStora
 
 
 @router.callback_query(Text(text="keyboard_down"))
-async def down_button(event: CallbackQuery, state: FSMContext, tmp_storage: TmpStorage):
+async def down_button(event: CallbackQuery, tmp_storage: TmpStorage):
     """Хендлер відловлює колбек кнопки 'вниз'. Витягує зі сховища об'єкт клавіатури.
     При натисканні кнопки 'вниз' переходить на наступний рівень пагінації викликом функції markup_down."""
     key = KeyKeyboard(
@@ -87,7 +87,7 @@ async def down_button(event: CallbackQuery, state: FSMContext, tmp_storage: TmpS
 
 
 @router.callback_query(Text(text="keyboard_up"))
-async def down_button(event: CallbackQuery, state: FSMContext, tmp_storage: TmpStorage):
+async def up_button(event: CallbackQuery, tmp_storage: TmpStorage):
     """Хендлер відловлює колбек кнопки 'вверх'. Витягує зі сховища об'єкт клавіатури.
     При натисканні кнопки 'вверх' переходить на попередній рівень пагінації викликом функції markup_down."""
     key = KeyKeyboard(
