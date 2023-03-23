@@ -1,5 +1,1 @@
-# Declare files that will always have CRLF line endings on checkout.
-*.sln text eol=crlf
-Dockerfile text eol=crlf
-Dockerfile.prod text eol=crlf
-*.yml text eol=crlf
+* text=auto eol=lf
