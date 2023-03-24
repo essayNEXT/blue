@@ -3,6 +3,7 @@ from aiogram import Dispatcher, Bot
 from settings import BOT_TOKEN
 import logging
 from handlers import echo
+from ttranslator.google import *
 
 
 async def main():
