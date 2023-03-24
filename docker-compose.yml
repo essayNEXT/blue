@@ -10,7 +10,7 @@ services:
     env_file:
       - ./.env
     depends_on:
-      - blue_bot_db
+      - blue_django
 
   blue_django:
     container_name: blue_django_container

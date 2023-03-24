@@ -10,6 +10,19 @@
 4. git reset --hard
 5. Перезагрузить проект из репозитория
 
+<h2> Запуск docker-compose.prod </h2>
+Для запуска использовать команду 
+
+docker-compose -f docker-compose.prod.yml --build -d
+
+Для остановки использовать команду
+
+docker-compose -f docker-compose.prod.yml down
+
+Для остановки и удаления томов
+
+docker-compose -f docker-compose.prod.yml down -v
+
 <h2> Команды для контейнера Django</h2>
 
 После запуска контейнера Django, необходимо прописать в командной строке контейнера:
