@@ -45,24 +45,34 @@ async def get_inline_kb(event: Union[Message, CallbackQuery], state: FSMContext,
             ] for button in range(1, num_of_scrolls + 1)
         ]
 
-        additional_buttons = [
+        top_static_buttons = [
             [
                 InlineKeyboardButton(
-                    text="Additional button 1",
-                    callback_data="additional_button_1"
+                    text="Top button 1",
+                    callback_data="top_button_1"
+                ),
+            ],
+        ]
+
+        bottom_static_buttons = [
+            [
+                InlineKeyboardButton(
+                    text="Bottom button 1",
+                    callback_data="bottom_button_1"
                 ),
             ],
             [
                 InlineKeyboardButton(
-                    text="Additional button 2",
-                    callback_data="additional_button_2"
+                    text="Bottom button 2",
+                    callback_data="bottom_button_2"
                 ),
             ]
         ]
 
         kb = CombineInlineKeyboardGenerator(
             scroll_keys=scroll_key_buttons,
-            additional_buttons_list=additional_buttons,
+            top_static_buttons=top_static_buttons,
+            bottom_static_buttons=bottom_static_buttons,
             max_rows_number=5,
             scroll_step=1
         )
