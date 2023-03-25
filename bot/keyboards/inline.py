@@ -135,13 +135,15 @@ class ContextUserKeyboard(CombineInlineKeyboardGenerator):
     def __init__(
             self,
             scroll_keys: List[List[InlineKeyboardButton]],
-            additional_buttons_list: Optional[List[List[InlineKeyboardButton]]] = None,
+            top_static_buttons: Optional[List[List[InlineKeyboardButton]]] = None,
+            bottom_static_buttons: Optional[List[List[InlineKeyboardButton]]] = None,
             max_rows_number: int = 5,
             start_row: int = 0,
             scroll_step: int = 1,
             user_language: str = 'en'
     ) -> None:
-        super().__init__(scroll_keys, additional_buttons_list, max_rows_number, start_row, scroll_step, user_language)
+        super().__init__(scroll_keys, top_static_buttons, bottom_static_buttons,
+                         max_rows_number, start_row, scroll_step, user_language)
 
 
 supported_languages = ["en", "uk", "ru"]
