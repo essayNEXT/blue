@@ -3,8 +3,8 @@ from aiogram.utils.keyboard import InlineKeyboardButton, InlineKeyboardMarkup
 from dataclasses import dataclass
 
 
-KEY_UP = InlineKeyboardButton(text="up", callback_data="keyboard_up")
-KEY_DOWN = InlineKeyboardButton(text="down", callback_data="keyboard_down")
+KEY_UP = InlineKeyboardButton(text="up", callback_data="inline_keyboard_up")
+KEY_DOWN = InlineKeyboardButton(text="down", callback_data="inline_keyboard_down")
 
 
 @dataclass(frozen=True)
