@@ -96,18 +96,52 @@ class CombineInlineKeyboardGenerator(ScrollInlineKeyboardGenerator):
     def __init__(
             self,
             scroll_keys: List[List[InlineKeyboardButton]],
-            additional_buttons_list: Optional[List[List[InlineKeyboardButton]]] = None,
+            top_static_buttons: Optional[List[List[InlineKeyboardButton]]] = None,
+            bottom_static_buttons: Optional[List[List[InlineKeyboardButton]]] = None,
             max_rows_number: int = 5,
             start_row: int = 0,
-            scroll_step: int = 1
+            scroll_step: int = 1,
+            user_language: str = "en"
     ) -> None:
         super().__init__(scroll_keys, max_rows_number, start_row, scroll_step)
-        if not additional_buttons_list:
-            additional_buttons_list = []
-        self.additional_buttons_list = additional_buttons_list
+        if not top_static_buttons:
+            top_static_buttons = []
+        self.top_static_buttons = top_static_buttons
+        if not bottom_static_buttons:
+            bottom_static_buttons = []
+        self.bottom_static_buttons = bottom_static_buttons
+        # перевіряємо чи є мова користувача в списку підтримуваних
+        self.user_language = user_language if user_language in supported_languages else "en"
 
     def markup(self) -> InlineKeyboardMarkup:
         return InlineKeyboardMarkup(
-            inline_keyboard=self._get_current_scroll_keyboard_list()
-            + self.additional_buttons_list
+            inline_keyboard=self.top_static_buttons + self._get_current_scroll_keyboard_list()
+            + self.bottom_static_buttons
         )
+
+    def update_keyboard_to_user_language(
+            self,
+            top_static_buttons,
+            scroll_keys,
+            down_static_buttons,
+    ):
+        pass
+
+
+class ContextUserKeyboard(CombineInlineKeyboardGenerator):
+    """Клас, що описує конкретну клавіатуру користувача.
+    В даному класі описуються функції, що повертають параметри обробки колбеку для кожної кнопки."""
+
+    def __init__(
+            self,
+            scroll_keys: List[List[InlineKeyboardButton]],
+            additional_buttons_list: Optional[List[List[InlineKeyboardButton]]] = None,
+            max_rows_number: int = 5,
+            start_row: int = 0,
+            scroll_step: int = 1,
+            user_language: str = 'en'
+    ) -> None:
+        super().__init__(scroll_keys, additional_buttons_list, max_rows_number, start_row, scroll_step, user_language)
+
+
+supported_languages = ["en", "uk", "ru"]
