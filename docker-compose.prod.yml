@@ -63,10 +63,25 @@ services:
     depends_on:
       - blue_django
 
+  redis:
+    container_name: blue_redis
+    image: redis:alpine3.17
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - ${REDIS_PORT}:${REDIS_PORT}
+    expose:
+      - ${REDIS_PORT}
+    volumes:
+      - redis_data:/data
+
 volumes:
   postgres_data:
   pgadmin_data:
   static_volume:
+  redis_data:
+
 
 
 
