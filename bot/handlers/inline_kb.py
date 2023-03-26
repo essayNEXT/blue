@@ -89,7 +89,7 @@ async def down_button(event: CallbackQuery, tmp_storage: TmpStorage):
 @router.callback_query(Text(text="keyboard_up"))
 async def up_button(event: CallbackQuery, tmp_storage: TmpStorage):
     """Хендлер відловлює колбек кнопки 'вверх'. Витягує зі сховища об'єкт клавіатури.
-    При натисканні кнопки 'вверх' переходить на попередній рівень пагінації викликом функції markup_down."""
+    При натисканні кнопки 'вверх' переходить на попередній рівень пагінації викликом функції markup_up."""
     key = KeyKeyboard(
         bot_id=bot.id,
         chat_id=event.message.chat.id,
