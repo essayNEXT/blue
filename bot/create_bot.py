@@ -1,5 +1,4 @@
 from aiogram import Bot, Dispatcher
-from aiogram.fsm.storage.memory import MemoryStorage
 from utils.storages import TmpStorage
 from redis.asyncio.client import Redis
 import os
@@ -12,7 +11,6 @@ redis = Redis(
         host=os.environ.get('REDIS_HOST')
     )
 storage = RedisStorage(redis=redis)
-#storage = MemoryStorage()
 tmp_storage = TmpStorage()
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher(storage=storage, tmp_storage=tmp_storage)

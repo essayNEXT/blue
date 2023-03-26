@@ -71,6 +71,3 @@ volumes:
   pgadmin_data:
   redis_data:
 
-
-
-
