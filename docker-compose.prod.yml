@@ -8,21 +8,23 @@ services:
       context: bot
       dockerfile: Dockerfile
     env_file:
-      - ./.env
+      - ./.env.prod
     depends_on:
       - blue_django
 
   blue_django:
     container_name: blue_django_container
     image: django_image
-    build: django_blue/
-    command: python manage.py runserver 0.0.0.0:8000
+    build:
+      context: django_blue/
+      dockerfile: Dockerfile.prod
+    command: gunicorn admin_bot.wsgi:application --bind 0.0.0.0:8000
     volumes:
-      - ./django_blue/:/usr/src/django_blue
-    ports:
-      - '8000:8000'
+      - static_volume:/home/app/web/staticfiles
+    expose:
+      - 8000
     env_file:
-      - .env
+      - .env.prod
     depends_on:
       - blue_bot_db
 
@@ -36,7 +38,30 @@ services:
     ports:
       - "5432:5432"
     env_file:
-    - .env
+    - .env.prod.db
+
+
+
+  pgadmin:
+    container_name: blue_pgadmin_container
+    image: dpage/pgadmin4
+    profiles:
+      - "dev"
+    restart: on-failure
+    env_file:
+      - ./.env.prod
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+  nginx:
+    build: ./nginx
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+    ports:
+      - '1337:80'
+    depends_on:
+      - blue_django
 
   redis:
     container_name: blue_redis
@@ -51,24 +76,10 @@ services:
     volumes:
       - redis_data:/data
 
-
-
-  pgadmin:
-    container_name: blue_pgadmin_container
-    image: dpage/pgadmin4
-    profiles:
-      - "dev"
-    restart: on-failure
-    env_file:
-      - ./.env
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
-    ports:
-      - "5050:80"
-
 volumes:
   postgres_data:
   pgadmin_data:
+  static_volume:
   redis_data:
 
 
