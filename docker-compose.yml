@@ -44,7 +44,7 @@ services:
     expose:
       - ${REDIS_PORT}
     volumes:
-      - redis_data:/redis/data
+      - redis_data:/data
 
 
   pgadmin:
