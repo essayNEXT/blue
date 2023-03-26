@@ -2,6 +2,8 @@ from typing import List, Optional
 from aiogram.utils.keyboard import InlineKeyboardButton, InlineKeyboardMarkup
 from dataclasses import dataclass
 
+from .temp_buttons import temp_top_static_buttons, temp_scroll_keys, temp_bottom_static_buttons, get_inline_buttons_list
+
 
 KEY_UP = InlineKeyboardButton(text="up", callback_data="inline_keyboard_up")
 KEY_DOWN = InlineKeyboardButton(text="down", callback_data="inline_keyboard_down")
@@ -43,19 +45,19 @@ class ScrollInlineKeyboardGenerator:
             self.numbers_of_buttons_to_show -= 1
         if self.start_row + self.numbers_of_buttons_to_show >= len(self.scroll_keys) - 1:
             return (
-                current_scroll_keyboard
-                + self.scroll_keys[
-                    self.start_row:(self.start_row + self.numbers_of_buttons_to_show)
-                ]
+                    current_scroll_keyboard
+                    + self.scroll_keys[
+                      self.start_row:(self.start_row + self.numbers_of_buttons_to_show)
+                      ]
             )
         else:
             self.numbers_of_buttons_to_show -= 1
             return (
-                current_scroll_keyboard
-                + self.scroll_keys[
-                    self.start_row: (self.start_row + self.numbers_of_buttons_to_show)
-                ]
-                + [[KEY_DOWN]]
+                    current_scroll_keyboard
+                    + self.scroll_keys[
+                      self.start_row: (self.start_row + self.numbers_of_buttons_to_show)
+                      ]
+                    + [[KEY_DOWN]]
             )
 
     def markup(self) -> InlineKeyboardMarkup:
@@ -116,7 +118,7 @@ class CombineInlineKeyboardGenerator(ScrollInlineKeyboardGenerator):
     def markup(self) -> InlineKeyboardMarkup:
         return InlineKeyboardMarkup(
             inline_keyboard=self.top_static_buttons + self._get_current_scroll_keyboard_list()
-            + self.bottom_static_buttons
+                            + self.bottom_static_buttons
         )
 
     def update_keyboard_to_user_language(
@@ -134,9 +136,9 @@ class ContextUserKeyboard(CombineInlineKeyboardGenerator):
 
     def __init__(
             self,
-            scroll_keys: List[List[InlineKeyboardButton]],
-            top_static_buttons: Optional[List[List[InlineKeyboardButton]]] = None,
-            bottom_static_buttons: Optional[List[List[InlineKeyboardButton]]] = None,
+            scroll_keys: List[List[InlineKeyboardButton]] = get_inline_buttons_list(temp_scroll_keys, 'uk'),
+            top_static_buttons: Optional[List[List[InlineKeyboardButton]]] = get_inline_buttons_list(temp_top_static_buttons, 'uk'),
+            bottom_static_buttons: Optional[List[List[InlineKeyboardButton]]] = get_inline_buttons_list(temp_bottom_static_buttons, 'uk'),
             max_rows_number: int = 5,
             start_row: int = 0,
             scroll_step: int = 1,
@@ -147,3 +149,5 @@ class ContextUserKeyboard(CombineInlineKeyboardGenerator):
 
 
 supported_languages = ["en", "uk", "ru"]
+
+

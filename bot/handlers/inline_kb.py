@@ -3,11 +3,12 @@ from aiogram import Router
 from aiogram.utils.keyboard import InlineKeyboardButton
 from aiogram.filters import Command, Text
 from aiogram.types import Message, CallbackQuery
-from keyboards.inline import CombineInlineKeyboardGenerator, KeyKeyboard
+from keyboards.inline import CombineInlineKeyboardGenerator, KeyKeyboard, ContextUserKeyboard
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
 from utils.storages import TmpStorage
 from create_bot import bot, dp
+
 
 
 class InlineStates(StatesGroup):
@@ -66,17 +67,25 @@ async def get_inline_kb(event: Union[Message, CallbackQuery], state: FSMContext,
                     text="Bottom button 2",
                     callback_data="bottom_button_2"
                 ),
+                InlineKeyboardButton(
+                    text="Bottom button 3",
+                    callback_data="bottom_button_3"
+                ),
             ]
         ]
 
-        kb = CombineInlineKeyboardGenerator(
-            scroll_keys=scroll_key_buttons,
-            top_static_buttons=top_static_buttons,
-            bottom_static_buttons=bottom_static_buttons,
-            max_rows_number=5,
-            scroll_step=1
+        # kb = CombineInlineKeyboardGenerator(
+        #     scroll_keys=scroll_key_buttons,
+        #     top_static_buttons=top_static_buttons,
+        #     bottom_static_buttons=bottom_static_buttons,
+        #     max_rows_number=5,
+        #     scroll_step=1
+        # )
+        kb = ContextUserKeyboard(
+            max_rows_number=3,
+            scroll_step=1,
+            user_language="uk"
         )
-
         key = KeyKeyboard(
             bot_id=bot.id,
             chat_id=event.chat.id,
@@ -96,6 +105,7 @@ async def get_inline_kb(event: Union[Message, CallbackQuery], state: FSMContext,
             message_id=event.message.message_id - 1
         )
         print(f"key for keyboard is {key}")
+
         if event.data == "inline_keyboard_down":
             message_text = "Клавіатура після кнопки вниз"
             reply_markup = tmp_storage[key].markup_down()
