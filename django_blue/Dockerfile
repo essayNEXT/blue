@@ -1,29 +1,23 @@
-# встановлення базового образу - https://docs.docker.com/engine/reference/builder/#from
-# https://medium.com/swlh/alpine-slim-stretch-buster-jessie-bullseye-bookworm-what-are-the-differences-in-docker-62171ed4531d
-FROM python:3.11.2-slim-buster AS base
-# додаємо макроінформацію - хто автор і до кого задавать питання
-# - https://docs.docker.com/engine/reference/builder/#maintainer-deprecated
-LABEL maintainer="Vladyslav Tarhonskyi <vladislav.targonskii@gmail.com>"
-# за замовчення всі операції виконуються з правами рута. Це не добра практика.
-# докладніше - тут https://habr.com/ru/post/448480/
-# наступні шість рядків необхідні для стоврення користувача, який не є рутом
-# докладно про ARG ENV - https://vsupalov.com/docker-arg-env-variable-gui
-ARG UID=1000
-ARG GID=1000
-ENV UID=${UID}
-ENV GID=${GID}
-# тут ми сворюємо користувача з ім'м docker_user, який не є рутом, і його UID за
-# замовченням буде 1000 (раніше тут було ARG UID=1000 ENV UID=${UID}), він може бути
-# замінений при старті контейнера передачою змінної або в файлі docker-compose.yaml
-# або як аргумент команди docker
-RUN useradd -m -u $UID docker_user
-USER docker_user
+# pull official base image
+FROM python:alpine3.17 AS base
+LABEL maintainer="Onyshchenko Serhii"
 
-# Инициализация проекта
-WORKDIR /home/docker_user/app
+# set work directory
+WORKDIR /usr/src/app
 
-ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
-COPY requirements.txt ./
+# Забороняє записувати файли .pyc на диск
+ENV PYTHONDONTWRITEBYTECODE 1
+# Забороняє Python буферизувати stdout и stderr
+ENV PYTHONUNBUFFERED 1
+
+# install psycopg2 dependencies
+RUN apk update \
+    && apk add postgresql-dev gcc python3-dev musl-dev
+
+# install dependencies
+RUN pip install --upgrade pip
+COPY requirements.txt .
 RUN  pip install -r requirements.txt
+# copy project
 COPY . .
-CMD ["python", "-m", "main_docker"]
+
