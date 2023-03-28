@@ -10,6 +10,7 @@ redis = Redis(
         port=os.environ.get('REDIS_PORT'),
         host=os.environ.get('REDIS_HOST')
     )
+
 storage = RedisStorage(redis=redis)
 tmp_storage = TmpStorage()
 bot = Bot(token=BOT_TOKEN)

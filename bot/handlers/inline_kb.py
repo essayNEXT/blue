@@ -7,7 +7,7 @@ from keyboards.inline import CombineInlineKeyboardGenerator, KeyKeyboard, Contex
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
 from utils.storages import TmpStorage
-from create_bot import bot, dp
+from create_bot import bot
 
 
 
@@ -82,9 +82,9 @@ async def get_inline_kb(event: Union[Message, CallbackQuery], state: FSMContext,
         #     scroll_step=1
         # )
         kb = ContextUserKeyboard(
-            max_rows_number=3,
+            max_rows_number=4,
             scroll_step=1,
-            user_language="uk"
+            user_language="ru"
         )
         key = KeyKeyboard(
             bot_id=bot.id,

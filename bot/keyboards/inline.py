@@ -2,8 +2,7 @@ from typing import List, Optional
 from aiogram.utils.keyboard import InlineKeyboardButton, InlineKeyboardMarkup
 from dataclasses import dataclass
 
-from .temp_buttons import temp_top_static_buttons, temp_scroll_keys, temp_bottom_static_buttons, get_inline_buttons_list
-
+from .temp_buttons import context_button_set, context_button_set_languages
 
 KEY_UP = InlineKeyboardButton(text="up", callback_data="inline_keyboard_up")
 KEY_DOWN = InlineKeyboardButton(text="down", callback_data="inline_keyboard_down")
@@ -121,13 +120,23 @@ class CombineInlineKeyboardGenerator(ScrollInlineKeyboardGenerator):
                             + self.bottom_static_buttons
         )
 
-    def update_keyboard_to_user_language(
-            self,
-            top_static_buttons,
-            scroll_keys,
-            down_static_buttons,
-    ):
-        pass
+    def language_context_buttons(self, buttons_list: List[List[InlineKeyboardButton]], translate_data: dict):
+        if self.user_language == "en":
+            return buttons_list
+        else:
+            new_buttons_list = []
+            for raw in buttons_list:
+                buttons_in_raw = []
+                for single_button in raw:
+                    single_button.text = translate_data[single_button.callback_data][self.user_language]
+                    buttons_in_raw.append(single_button)
+                new_buttons_list.append(buttons_in_raw)
+            print(new_buttons_list)
+            return new_buttons_list
+
+    def language_context_text(self, text: str):
+        if self.user_language == "en":
+            return text
 
 
 class ContextUserKeyboard(CombineInlineKeyboardGenerator):
@@ -136,18 +145,24 @@ class ContextUserKeyboard(CombineInlineKeyboardGenerator):
 
     def __init__(
             self,
-            scroll_keys: List[List[InlineKeyboardButton]] = get_inline_buttons_list(temp_scroll_keys, 'uk'),
-            top_static_buttons: Optional[List[List[InlineKeyboardButton]]] = get_inline_buttons_list(temp_top_static_buttons, 'uk'),
-            bottom_static_buttons: Optional[List[List[InlineKeyboardButton]]] = get_inline_buttons_list(temp_bottom_static_buttons, 'uk'),
+            scroll_keys: List[List[InlineKeyboardButton]] = None,
+            top_static_buttons: Optional[List[List[InlineKeyboardButton]]] = None,
+            bottom_static_buttons: Optional[List[List[InlineKeyboardButton]]] = None,
             max_rows_number: int = 5,
             start_row: int = 0,
             scroll_step: int = 1,
             user_language: str = 'en'
     ) -> None:
-        super().__init__(scroll_keys, top_static_buttons, bottom_static_buttons,
-                         max_rows_number, start_row, scroll_step, user_language)
+        self.user_language = user_language
+        self.scroll_keys = self.language_context_buttons(context_button_set["scroll_key_buttons"],
+                                                         context_button_set_languages)
+        self.top_static_buttons = self.language_context_buttons(context_button_set["top_static_buttons"],
+                                                                context_button_set_languages)
+        self.bottom_static_buttons = self.language_context_buttons(context_button_set["bottom_static_buttons"],
+                                                                   context_button_set_languages)
+        self.max_rows_number=max_rows_number
+        self.start_row=start_row
+        self.scroll_step=scroll_step
 
 
 supported_languages = ["en", "uk", "ru"]
-
-
