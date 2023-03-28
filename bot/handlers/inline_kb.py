@@ -6,7 +6,7 @@ from keyboards.inline import CombineInlineKeyboardGenerator, KeyKeyboard
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
 from utils.storages import TmpStorage
-from create_bot import bot, dp
+from create_bot import bot
 
 
 class InlineStates(StatesGroup):
