@@ -1,6 +1,7 @@
 from typing import List, Optional
 from aiogram.utils.keyboard import InlineKeyboardButton, InlineKeyboardMarkup
 from dataclasses import dataclass
+from aiogram.types import CallbackQuery
 
 from .temp_buttons import context_button_set, context_button_set_languages
 
@@ -131,7 +132,6 @@ class CombineInlineKeyboardGenerator(ScrollInlineKeyboardGenerator):
                     single_button.text = translate_data[single_button.callback_data][self.user_language]
                     buttons_in_raw.append(single_button)
                 new_buttons_list.append(buttons_in_raw)
-            print(new_buttons_list)
             return new_buttons_list
 
     def language_context_text(self, text: str):
@@ -145,24 +145,33 @@ class ContextUserKeyboard(CombineInlineKeyboardGenerator):
 
     def __init__(
             self,
-            scroll_keys: List[List[InlineKeyboardButton]] = None,
-            top_static_buttons: Optional[List[List[InlineKeyboardButton]]] = None,
-            bottom_static_buttons: Optional[List[List[InlineKeyboardButton]]] = None,
             max_rows_number: int = 5,
             start_row: int = 0,
             scroll_step: int = 1,
             user_language: str = 'en'
     ) -> None:
-        self.user_language = user_language
+        self.user_language = user_language if user_language in supported_languages else "en"
         self.scroll_keys = self.language_context_buttons(context_button_set["scroll_key_buttons"],
                                                          context_button_set_languages)
         self.top_static_buttons = self.language_context_buttons(context_button_set["top_static_buttons"],
                                                                 context_button_set_languages)
         self.bottom_static_buttons = self.language_context_buttons(context_button_set["bottom_static_buttons"],
                                                                    context_button_set_languages)
-        self.max_rows_number=max_rows_number
-        self.start_row=start_row
-        self.scroll_step=scroll_step
+        self.max_rows_number = max_rows_number
+        self.start_row = start_row
+        self.scroll_step = scroll_step
+
+    def context_callback_message(self, event: CallbackQuery) -> str:
+        if event.data == "inline_keyboard_up":
+            return "After up"
+        elif event.data == "inline_keyboard_down":
+            return "After down"
+        elif event.data.startswith("inline_button_"):
+            return f"After press to scroll inline button {event.data.lstrip('inline_button_')}"
+        elif event.data.startswith("top_button_"):
+            return f"After press to top button {event.data.lstrip('top_button_')}"
+        elif event.data.startswith("bottom_button_"):
+            return f"After press to bottom button {event.data.lstrip('bottom_button_')}"
 
 
 supported_languages = ["en", "uk", "ru"]

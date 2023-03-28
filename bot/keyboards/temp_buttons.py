@@ -103,26 +103,21 @@ bottom_static_buttons = [
     ]
 ]
 
-print(bottom_static_buttons)
 context_button_set = {"scroll_key_buttons": scroll_key_buttons,
                       "top_static_buttons": top_static_buttons,
                       "bottom_static_buttons": bottom_static_buttons}
 
 
-def get_inline_buttons_list(
-        button_list: List[List[InlineKeyboardButton]],
-        user_language: str
-) -> List[List[InlineKeyboardButton]]:
-    new_buttons_list = []
-    for raw in button_list:
-        buttons_in_raw = []
-        for single_button in raw:
-            single_button.text = context_button_set_languages[single_button.callback_data][user_language]
-            buttons_in_raw.append(single_button)
-        new_buttons_list.append(buttons_in_raw)
-    return new_buttons_list
+# def get_inline_buttons_list(
+#         button_list: List[List[InlineKeyboardButton]],
+#         user_language: str
+# ) -> List[List[InlineKeyboardButton]]:
+#     new_buttons_list = []
+#     for raw in button_list:
+#         buttons_in_raw = []
+#         for single_button in raw:
+#             single_button.text = context_button_set_languages[single_button.callback_data][user_language]
+#             buttons_in_raw.append(single_button)
+#         new_buttons_list.append(buttons_in_raw)
+#     return new_buttons_list
 
-
-button = InlineKeyboardButton(text="text", callback_data="callback_data")
-button.text = "hello"
-print(button.json())

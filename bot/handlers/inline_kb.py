@@ -10,7 +10,6 @@ from utils.storages import TmpStorage
 from create_bot import bot
 
 
-
 class InlineStates(StatesGroup):
     Inline = State()
 
@@ -19,6 +18,9 @@ router = Router()
 
 
 @router.callback_query(Text(startswith="inline_keyboard_"))
+@router.callback_query(Text(startswith="inline_button_"))
+@router.callback_query(Text(startswith="top_button_"))
+@router.callback_query(Text(startswith="bottom_button_"))
 @router.message(Command(commands='inline_kb'))
 async def get_inline_kb(event: Union[Message, CallbackQuery], state: FSMContext, tmp_storage: TmpStorage):
     """Хендлер реагує на команду /inline_kb та створює об'єкт інлайн клавіатури.
@@ -36,51 +38,7 @@ async def get_inline_kb(event: Union[Message, CallbackQuery], state: FSMContext,
         print(f"type of tmp_storage: {type(tmp_storage)}")
         print(f"id of tmp_storage: {id(tmp_storage)}")
         await state.set_state(InlineStates.Inline)
-        num_of_scrolls = 20
-        scroll_key_buttons = [
-            [
-                InlineKeyboardButton(
-                    text=f"Inline button {button}",
-                    callback_data=f"inline_button_{button}"
-                )
-            ] for button in range(1, num_of_scrolls + 1)
-        ]
 
-        top_static_buttons = [
-            [
-                InlineKeyboardButton(
-                    text="Top button 1",
-                    callback_data="top_button_1"
-                ),
-            ],
-        ]
-
-        bottom_static_buttons = [
-            [
-                InlineKeyboardButton(
-                    text="Bottom button 1",
-                    callback_data="bottom_button_1"
-                ),
-            ],
-            [
-                InlineKeyboardButton(
-                    text="Bottom button 2",
-                    callback_data="bottom_button_2"
-                ),
-                InlineKeyboardButton(
-                    text="Bottom button 3",
-                    callback_data="bottom_button_3"
-                ),
-            ]
-        ]
-
-        # kb = CombineInlineKeyboardGenerator(
-        #     scroll_keys=scroll_key_buttons,
-        #     top_static_buttons=top_static_buttons,
-        #     bottom_static_buttons=bottom_static_buttons,
-        #     max_rows_number=5,
-        #     scroll_step=1
-        # )
         kb = ContextUserKeyboard(
             max_rows_number=4,
             scroll_step=1,
@@ -106,10 +64,11 @@ async def get_inline_kb(event: Union[Message, CallbackQuery], state: FSMContext,
         )
         print(f"key for keyboard is {key}")
 
+        message_text = tmp_storage[key].context_callback_message(event)
         if event.data == "inline_keyboard_down":
-            message_text = "Клавіатура після кнопки вниз"
             reply_markup = tmp_storage[key].markup_down()
         elif event.data == "inline_keyboard_up":
-            message_text = "Клавіатура після кнопки вверх"
             reply_markup = tmp_storage[key].markup_up()
+        else:
+            reply_markup = tmp_storage[key].markup()
         await event.message.edit_text(message_text, reply_markup=reply_markup)
