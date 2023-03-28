@@ -1,22 +1,22 @@
-name: CD_blue_bot
-
-on:
-  pull_request:
-    branches:
-      - main
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy to VPS
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secret.VPS_SSH_HOST }}
-          username: ${{ secret.VPS_SSH_USERNAME }}
-          key: ${{ secret.VPS_SSH_SECRET }}
-          port: ${{ secret.VPS_SSH_PORT }}
-          script:
-            eval "$(ssh-agent)"
-            ssh-add ~/.ssh/id_rsa
-            cd ${{ secret.PROJECT_PATH }}
-
+#name: CD_blue_bot
+#
+#on:
+#  pull_request:
+#    branches:
+#      - main
+#jobs:
+#  deploy:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Deploy to VPS
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{ secret.VPS_SSH_HOST }}
+#          username: ${{ secret.VPS_SSH_USERNAME }}
+#          key: ${{ secret.VPS_SSH_SECRET }}
+#          port: ${{ secret.VPS_SSH_PORT }}
+#          script:
+#            eval "$(ssh-agent)"
+#            ssh-add ~/.ssh/id_rsa
+#            cd ${{ secret.PROJECT_PATH }}
+#
