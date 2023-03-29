@@ -1,37 +1,5 @@
 from aiogram.types import InlineKeyboardButton
 
-# top_button_1 = {"name": "top_button_1",
-#                 "text": {"en": "top button 1",
-#                          "uk": "верхня кнопка 1"},
-#                 "callback_data": "top_button_1",
-#                 "message_text": {"en": "Push button 1",
-#                                  "uk": "Натиснув кнопку 1"}
-#                 }
-# top_button_2 = {"name": "top_button_2",
-#                 "text": {"en": "top button 2",
-#                          "uk": "верхня кнопка 2"},
-#                 "callback_data": "top_button_2",
-#                 "message_text": {"en": "Push button 2",
-#                                  "uk": "Натиснув кнопку 2"}
-#                 }
-#
-# temp_top_static_buttons = {
-#     1: [top_button_1],
-#     2: [top_button_2]
-# }
-
-
-# def get_inline_buttons_list(button_dict: dict, user_language: str) -> List[List[InlineKeyboardButton]]:
-#     result = []
-#     for level in range(1, len(button_dict) + 1):
-#         buttons_in_level = []
-#         for single_button in button_dict[level]:
-#             button = InlineKeyboardButton(text=single_button['text'][user_language],
-#                                           callback_data=single_button["callback_data"])
-#             buttons_in_level.append(button)
-#         result.append(buttons_in_level)
-#     return result
-
 context_button_set_languages = {
     "inline_button_1": {"uk": "Скрол кнопка 1",
                         "ru": "Скролл кнопка 1"},
@@ -106,16 +74,35 @@ context_button_set = {"scroll_key_buttons": scroll_key_buttons,
                       "top_static_buttons": top_static_buttons,
                       "bottom_static_buttons": bottom_static_buttons}
 
+context_callback_messages = {
+    "inline_button_": {"en": "After press to scroll inline button ",
+                       "uk": "Після натискання на скрол кнопку ",
+                       "ru": "После нажатия на скролл кнопкy "},
+    "bottom_button_": {"en": "After press to bottom button ",
+                       "uk": "Після натискання на нижню кнопку ",
+                       "ru": "После нажатия на нижнюю кнопкy "},
+    "top_button_": {"en": "After press to top button ",
+                    "uk": "Після натискання на верхню кнопку ",
+                    "ru": "После нажатия на верхнюю кнопкy "},
+}
 
-# def get_inline_buttons_list(
-#         button_list: List[List[InlineKeyboardButton]],
-#         user_language: str
-# ) -> List[List[InlineKeyboardButton]]:
-#     new_buttons_list = []
-#     for raw in button_list:
-#         buttons_in_raw = []
-#         for single_button in raw:
-#             single_button.text = context_button_set_languages[single_button.callback_data][user_language]
-#             buttons_in_raw.append(single_button)
-#         new_buttons_list.append(buttons_in_raw)
-#     return new_buttons_list
+default_buttons_messages = {
+    "scroll_up": {"en": "After button up",
+                  "uk": "Після натискання на кнопку вверх",
+                  "ru": "После нажатия на кнопкy вверх"},
+    "scroll_down": {"en": "After button down",
+                    "uk": "Після натискання на кнопку вниз",
+                    "ru": "После нажатия на кнопкy вниз"},
+    "exit": {"en": "After press to exit button ",
+             "uk": "Після натискання на кнопку вийти",
+             "ru": "После нажатия на кнопкy выйти"}
+}
+
+navigation_buttons = {
+    "scroll_up": {"en": "Up",
+                  "uk": "Вверх",
+                  "ru": "Вверх"},
+    "scroll_down": {"en": "Down",
+                    "uk": "Вниз",
+                    "ru": "Вниз"}
+}
