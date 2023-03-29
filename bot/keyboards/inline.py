@@ -1,3 +1,4 @@
+from itertools import chain
 from typing import List, Optional
 from aiogram.utils.keyboard import InlineKeyboardButton, InlineKeyboardMarkup
 from dataclasses import dataclass
@@ -117,8 +118,11 @@ class CombineInlineKeyboardGenerator(ScrollInlineKeyboardGenerator):
 
     def markup(self) -> InlineKeyboardMarkup:
         return InlineKeyboardMarkup(
-            inline_keyboard=self.top_static_buttons + self._get_current_scroll_keyboard_list()
-                            + self.bottom_static_buttons
+            inline_keyboard=chain(
+                self.top_static_buttons,
+                self._get_current_scroll_keyboard_list(),
+                self.bottom_static_buttons
+                )
         )
 
     def language_context_buttons(self, buttons_list: List[List[InlineKeyboardButton]], translate_data: dict):

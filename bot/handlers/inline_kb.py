@@ -1,9 +1,8 @@
 from typing import Union
 from aiogram import Router
-from aiogram.utils.keyboard import InlineKeyboardButton
 from aiogram.filters import Command, Text
 from aiogram.types import Message, CallbackQuery
-from keyboards.inline import CombineInlineKeyboardGenerator, KeyKeyboard, ContextUserKeyboard
+from keyboards.inline import KeyKeyboard, ContextUserKeyboard
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
 from utils.storages import TmpStorage

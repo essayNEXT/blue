@@ -1,4 +1,3 @@
-from typing import List
 from aiogram.types import InlineKeyboardButton
 
 # top_button_1 = {"name": "top_button_1",
@@ -120,4 +119,3 @@ context_button_set = {"scroll_key_buttons": scroll_key_buttons,
 #             buttons_in_raw.append(single_button)
 #         new_buttons_list.append(buttons_in_raw)
 #     return new_buttons_list
-
