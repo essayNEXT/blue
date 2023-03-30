@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from aiogram.types import CallbackQuery
 
 from .temp_buttons import context_button_set, context_button_set_languages, context_callback_messages
-from .temp_buttons import default_buttons_messages, navigation_buttons
+from .temp_buttons import default_buttons_messages
 
 from utils.translate.kb_translate import translate_context
 
@@ -154,7 +154,7 @@ class CombineInlineKeyboardGenerator(ScrollInlineKeyboardGenerator):
 
 
 class ContextInlineKeyboardGenerator(CombineInlineKeyboardGenerator):
-    """"""
+    """Клас-шаблон для створення клавіатури"""
     def __init__(
             self,
             user_language: str,
@@ -165,35 +165,40 @@ class ContextInlineKeyboardGenerator(CombineInlineKeyboardGenerator):
             max_rows_number: int = 5,
             start_row: int = 0,
             scroll_step: int = 1,
+            initial_text: str = None
     ) -> None:
 
         self.messages = {}
         self.user_language = user_language
         self.kb_language = kb_language
-        self._text = translate_context("en", self.user_language, "You forgot to change initial text")
+        if initial_text is None:
+            self._text = translate_context("en", self.user_language, "You forgot to change initial text")
+        else:
+            self._text = translate_context(self.kb_language, self.user_language, initial_text)
         scroll_keys = self.create_buttons_list(scroll_buttons)
         top_static_buttons = self.create_buttons_list(top_buttons)
         bottom_static_buttons = self.create_buttons_list(bottom_buttons)
 
         super().__init__(scroll_keys, top_static_buttons, bottom_static_buttons,
                          max_rows_number, start_row, scroll_step, user_language)
-        # self.KEY_UP.text = translate_context("en", self.user_language, self.KEY_UP.text, kb_name)
-        # self.KEY_DOWN.text = translate_context("en", self.user_language, self.KEY_DOWN.text)
+        if scroll_keys:
+            self.KEY_UP.text = translate_context("en", self.user_language, self.KEY_UP.text)
+            self.KEY_DOWN.text = translate_context("en", self.user_language, self.KEY_DOWN.text)
 
     def create_buttons_list(self, dict_list: List[List[dict]]) -> List[List[InlineKeyboardButton]]:
         """Функція приймає dict_list:List[List[dict]] та повертає об'єкт списку списків з інлайн клавіатурами типу
-        List[List[InlineKeyboardButton]], що необхідно для подальшого формування клавіатури"""
+        List[List[InlineKeyboardButton]], що необхідно для подальшого формування клавіатури.
+        При створенні клавіатури створюється словник даних self.messages, що відповідає за повідомлення при натисканні
+        кнопок. Кнопки та повідомлення перекладаються на необхідну мову self.user_language"""
         if dict_list is None:
-            return [[]]
+            return []
         buttons_list = []
         for item in dict_list:
             if isinstance(item, list):
                 buttons_list.append(self.create_buttons_list(item))
             elif isinstance(item, dict):
                 callback_data = item["callback_data"]
-                # text = item["text"]
                 text = translate_context(self.kb_language, self.user_language, item["text"])
-                # message = item["message"]
                 message = translate_context(self.kb_language, self.user_language, item["message"])
                 buttons_list.append(InlineKeyboardButton(text=text, callback_data=callback_data))
                 self.messages[callback_data] = message
@@ -210,6 +215,7 @@ class ContextInlineKeyboardGenerator(CombineInlineKeyboardGenerator):
         self._text = value
 
     def callback(self, event: CallbackQuery):
+        """Змінює self._text при виклику колбеку"""
         self._text = self.messages[event.data]
 
 
@@ -250,10 +256,11 @@ class MyKeyboard(ContextInlineKeyboardGenerator):
                  "message": "Ти натиснув кнопку 4"}
             ]
         ]
-        super().__init__(user_language, kb_language, top_buttons, scroll_buttons, bottom_buttons,
-                         max_rows_number, start_row, scroll_step)
 
-        # self.text = "Привіт, це твоє початкове тестове повідомлення"
+        initial_text = "Привіт, це твоє початкове тестове повідомлення"
+
+        super().__init__(user_language, kb_language, top_buttons, scroll_buttons, bottom_buttons,
+                         max_rows_number, start_row, scroll_step, initial_text)
 
 
 class MyContextUserKeyboard(CombineInlineKeyboardGenerator):

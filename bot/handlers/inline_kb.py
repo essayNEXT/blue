@@ -76,13 +76,12 @@ async def get_inline_kb(event: Union[Message, CallbackQuery], state: FSMContext,
 @router.message(Command(commands='test_kb'))
 @router.callback_query(Text(startswith="button_"))
 async def get_test_kb(event: Union[Message, CallbackQuery], state: FSMContext, tmp_storage: TmpStorage):
-    """"""
+    """Хендлер для тестової клавіатури MyKeyboard"""
     if isinstance(event, Message):
         await state.set_state(InlineStates.Inline)
 
-        kb = MyKeyboard(
-            user_language="ru"
-        )
+        kb = MyKeyboard(user_language="ja")
+
         key = KeyKeyboard(
             bot_id=bot.id,
             chat_id=event.chat.id,
@@ -102,5 +101,3 @@ async def get_test_kb(event: Union[Message, CallbackQuery], state: FSMContext, t
         kb = tmp_storage[key]
         kb.callback(event)
         await event.message.edit_text(kb.text, reply_markup=kb.markup())
-
-

@@ -3,7 +3,6 @@ from googletrans import Translator
 translation = {
     "uk": {
         "You forgot to change initial text": "Ти забув змінити параметр початкового тексту"
-
     },
     "en": {
         "Кнопка 1": "Button 1",
@@ -24,18 +23,18 @@ translation = {
 
 def translate_context(init_language, out_language, context_data):
     if init_language == out_language:
+        print(f"{context_data} - is in keyboard object")
         return context_data
     else:
-        if context_data in translation[out_language].keys():
-            print("Get data from db")
+        if out_language in translation.keys() and context_data in translation[out_language].keys():
+            print(f"{context_data} - is get from db")
             return translation[out_language][context_data]
         else:
-            print("need to use google translate")
-            return context_data
-            # return google_translate(init_language, out_language, context_data)
+            print(f"{context_data} - is get from Google translate")
+            text = google_translate(out_language, context_data)
+            return text
 
 
-def google_translate(init_language: str, out_language: str, input_text: str) -> str:
-    # Translation of a text string into the specified language, or an error message
-    tr = Translator().translate(input_text, scr=out_language, dest=init_language)
+def google_translate(out_language: str, input_text: str) -> str:
+    tr = Translator().translate(input_text, dest=out_language)
     return tr.text
