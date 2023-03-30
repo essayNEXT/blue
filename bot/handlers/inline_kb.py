@@ -81,7 +81,7 @@ async def get_test_kb(event: Union[Message, CallbackQuery], state: FSMContext, t
         await state.set_state(InlineStates.Inline)
 
         kb = MyKeyboard(
-            user_language="uk"
+            user_language="ru"
         )
         key = KeyKeyboard(
             bot_id=bot.id,
