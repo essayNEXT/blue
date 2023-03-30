@@ -11,14 +11,14 @@ jobs:
       - name: Deploy to VPS
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secret.VPS_SSH_HOST }}
-          username: ${{ secret.VPS_SSH_USERNAME }}
-          key: ${{ secret.VPS_SSH_SECRET }}
-          port: ${{ secret.VPS_SSH_PORT }}
+          host: ${{ secrets.VPS_SSH_HOST }}
+          username: ${{ secrets.VPS_SSH_USERNAME }}
+          key: ${{ secrets.VPS_SSH_SECRET }}
+          port: ${{ secrets.VPS_SSH_PORT }}
           script: |
             eval "$(ssh-agent)"
             ssh-add ~/.ssh/id_rsa
-            cd ${{  secret.PROJECT_PATH }}
+            cd ${{  secrets.PROJECT_PATH }}
             git pull origin main
             docker-compose rm -sf
             docker-compose build
