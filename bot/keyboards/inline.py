@@ -4,9 +4,6 @@ from aiogram.utils.keyboard import InlineKeyboardButton, InlineKeyboardMarkup
 from dataclasses import dataclass
 from aiogram.types import CallbackQuery
 
-from .temp_buttons import context_button_set, context_button_set_languages, context_callback_messages
-from .temp_buttons import default_buttons_messages
-
 from utils.translate.kb_translate import translate_context
 
 
@@ -154,23 +151,38 @@ class CombineInlineKeyboardGenerator(ScrollInlineKeyboardGenerator):
 
 
 class ContextInlineKeyboardGenerator(CombineInlineKeyboardGenerator):
-    """Клас-шаблон для створення клавіатури"""
+    """Клас-шаблон для створення клавіатури.
+    Приймає обов'язкові параметри:
+        - user_language: str - мова користувача
+        - kb_language: str - мова на якій створений клас клавіатури
+        - callback_pattern: str - шаблон колбеку класу клавіатури
+    Приймає необов'язкові параметри:
+        - top_buttons: Optional[List[List[dict]]] - список словників верхніх кнопок
+        - scroll_buttons: Optional[List[List[dict]]] - список словників скрол кнопок
+        - bottom_buttons: Optional[List[List[dict]]] - список словників нижніх кнопок
+        - initial_text: str - початковий текст при виклику клавіатури
+        - max_rows_number: int - максимальна кількість об'єктів прокручування
+        - start_row: int - початковий рядок прокручування
+        - scroll_step: int - крок прокручування
+        """
     def __init__(
             self,
             user_language: str,
             kb_language: str,
+            callback_pattern: str,
             top_buttons: Optional[List[List[dict]]] = None,
             scroll_buttons: Optional[List[List[dict]]] = None,
             bottom_buttons: Optional[List[List[dict]]] = None,
+            initial_text: str = None,
             max_rows_number: int = 5,
             start_row: int = 0,
             scroll_step: int = 1,
-            initial_text: str = None
     ) -> None:
 
         self.messages = {}
         self.user_language = user_language
         self.kb_language = kb_language
+        self.callback_pattern = callback_pattern
         if initial_text is None:
             self._text = translate_context("en", self.user_language, "You forgot to change initial text")
         else:
@@ -183,7 +195,9 @@ class ContextInlineKeyboardGenerator(CombineInlineKeyboardGenerator):
                          max_rows_number, start_row, scroll_step, user_language)
         if scroll_keys:
             self.KEY_UP.text = translate_context("en", self.user_language, self.KEY_UP.text)
+            self.KEY_UP.callback_data = self.callback_pattern + self.KEY_UP.callback_data
             self.KEY_DOWN.text = translate_context("en", self.user_language, self.KEY_DOWN.text)
+            self.KEY_DOWN.callback_data = self.callback_pattern + self.KEY_DOWN.callback_data
 
     def create_buttons_list(self, dict_list: List[List[dict]]) -> List[List[InlineKeyboardButton]]:
         """Функція приймає dict_list:List[List[dict]] та повертає об'єкт списку списків з інлайн клавіатурами типу
@@ -199,9 +213,10 @@ class ContextInlineKeyboardGenerator(CombineInlineKeyboardGenerator):
             elif isinstance(item, dict):
                 callback_data = item["callback_data"]
                 text = translate_context(self.kb_language, self.user_language, item["text"])
-                message = translate_context(self.kb_language, self.user_language, item["message"])
+                if "message" in item.keys():
+                    message = translate_context(self.kb_language, self.user_language, item["message"])
+                    self.messages[callback_data] = message
                 buttons_list.append(InlineKeyboardButton(text=text, callback_data=callback_data))
-                self.messages[callback_data] = message
         return buttons_list
 
     @property
@@ -215,7 +230,8 @@ class ContextInlineKeyboardGenerator(CombineInlineKeyboardGenerator):
         self._text = value
 
     def callback(self, event: CallbackQuery):
-        """Змінює self._text при виклику колбеку"""
+        """Функція обробки колбеків. За необхідності можна перевизначити в похідному класі.
+        За замовчуванням замінює параметр self._text на повідомлення при натисканні кнопки."""
         self._text = self.messages[event.data]
 
 
@@ -229,73 +245,44 @@ class MyKeyboard(ContextInlineKeyboardGenerator):
             start_row: int = 0,
             scroll_step: int = 1,
     ):
-        self.name = "Приклад клавіатури"
+        # Параметр self.name потенційно можна використовувати для пошуку об'єктів в БД
+        # self.name = "Приклад клавіатури"
 
         kb_language = "uk"
-        top_buttons = [
-            [
-                {"callback_data": "button_1",
-                 "text": "Кнопка 1",
-                 "message": "Ти натиснув кнопку 1"},
-                {"callback_data": "button_2",
-                 "text": "Кнопка 2",
-                 "message": "Ти натиснув кнопку 2"}
-            ],
-            [
-                {"callback_data": "button_3",
-                 "text": "Кнопка 3",
-                 "message": "Ти натиснув кнопку 3"}
-            ]
-        ]
-
-        scroll_buttons = None
-        bottom_buttons = [
-            [
-                {"callback_data": "button_4",
-                 "text": "Кнопка 4",
-                 "message": "Ти натиснув кнопку 4"}
-            ]
-        ]
-
+        callback_pattern = "#_test_"
         initial_text = "Привіт, це твоє початкове тестове повідомлення"
 
-        super().__init__(user_language, kb_language, top_buttons, scroll_buttons, bottom_buttons,
-                         max_rows_number, start_row, scroll_step, initial_text)
+        top_buttons = [
+            [
+                {"callback_data": "#_test_button_1",
+                 "text": "Кнопка 1",
+                 "message": "Ти натиснув верхню кнопку 1"},
+                {"callback_data": "#_test_button_2",
+                 "text": "Кнопка 2",
+                 "message": "Ти натиснув верхню кнопку 2"}
+            ],
+            [
+                {"callback_data": "#_test_button_3",
+                 "text": "Кнопка 3",
+                 "message": "Ти натиснув верхню кнопку 3"}
+            ]
+        ]
 
+        scroll_buttons = [
+            [
+                {"callback_data": f"#_test_button_scroll_{num}",
+                 "text": f"Кнопка прокручування {num}",
+                 "message": f"Ти натиснув кнопку прокручування {num}"}
+            ] for num in range(1, 8)
+        ]
 
-class MyContextUserKeyboard(CombineInlineKeyboardGenerator):
-    """Клас, що описує конкретну клавіатуру користувача.
-    В даному класі описуються функції, що повертають параметри обробки колбеку для кожної кнопки."""
+        bottom_buttons = [
+            [
+                {"callback_data": "#_test_button_4",
+                 "text": "Кнопка 4",
+                 "message": "Ти натиснув нижню кнопку 4"}
+            ]
+        ]
 
-    def __init__(
-            self,
-            max_rows_number: int = 5,
-            start_row: int = 0,
-            scroll_step: int = 1,
-            user_language: str = 'en'
-    ) -> None:
-        self.user_language = user_language if user_language in supported_languages else "en"
-        self.scroll_keys = self.language_context_buttons(context_button_set["scroll_key_buttons"],
-                                                         context_button_set_languages)
-        self.top_static_buttons = self.language_context_buttons(context_button_set["top_static_buttons"],
-                                                                context_button_set_languages)
-        self.bottom_static_buttons = self.language_context_buttons(context_button_set["bottom_static_buttons"],
-                                                                   context_button_set_languages)
-        self.max_rows_number = max_rows_number
-        self.start_row = start_row
-        self.scroll_step = scroll_step
-
-    def context_callback_message(self, event: CallbackQuery) -> str:
-        if event.data == "scroll_up":
-            return f"{self.language_context_text('scroll_up', default_buttons_messages)}"
-        elif event.data == "scroll_down":
-            return f"{self.language_context_text('scroll_down', default_buttons_messages)}"
-        elif event.data.startswith("inline_button_"):
-            return f"{self.language_context_text('inline_button_', context_callback_messages)}" \
-                   f"{event.data.lstrip('inline_button_')}"
-        elif event.data.startswith("top_button_"):
-            return f"{self.language_context_text('top_button_', context_callback_messages)}" \
-                   f"{event.data.lstrip('top_button_')}"
-        elif event.data.startswith("bottom_button_"):
-            return f"{self.language_context_text('bottom_button_', context_callback_messages)}" \
-                   f"{event.data.lstrip('bottom_button_')}"
+        super().__init__(user_language, kb_language,  callback_pattern, top_buttons, scroll_buttons, bottom_buttons,
+                         initial_text, max_rows_number, start_row, scroll_step)
