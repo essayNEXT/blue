@@ -33,8 +33,10 @@ services:
       - ./create_table.sql:/docker-entrypoint-initdb.d/create_table.sql
       - postgres_data:/var/lib/postgresql/data
 
-    ports:
-      - "5432:5432"
+#    ports:
+#      - '5433:5432'
+    expose:
+      - '5432'
     env_file:
     - .env
 
@@ -44,8 +46,8 @@ services:
     restart: always
     env_file:
       - .env
-    ports:
-      - ${REDIS_PORT}:${REDIS_PORT}
+#    ports:
+#      - ${REDIS_PORT}
     expose:
       - ${REDIS_PORT}
     volumes:
