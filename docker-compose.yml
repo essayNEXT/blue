@@ -29,9 +29,9 @@ services:
   blue_bot_db:
     container_name: ${DB_HOST}
     image: postgres:alpine3.17
-    volumes:
-      - ./create_table.sql:/docker-entrypoint-initdb.d/create_table.sql
-      - postgres_data:/var/lib/postgresql/data
+    #volumes:
+    #  - ./create_table.sql:/docker-entrypoint-initdb.d/create_table.sql
+    #  - postgres_data:/var/lib/postgresql/data
 
     ports:
       - "5432:5432"
@@ -65,6 +65,24 @@ services:
       - pgadmin_data:/var/lib/pgadmin
     ports:
       - "5050:80"
+
+  piccolo_blue:
+    container_name: piccolo_bot
+    image: piccolo_bot_image
+    #build: piccolo_blue/
+    build:
+      context: piccolo_blue
+      dockerfile: Dockerfile
+    ports:
+      - "7000:7000"
+    #налаштування шлях хосту
+    volumes:
+      - ./piccolo_blue:/piccolo_blue
+    env_file:
+      - .env
+    #приорітет при побудові
+    depends_on:
+      - blue_bot_db
 
 volumes:
   postgres_data:
