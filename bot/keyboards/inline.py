@@ -187,10 +187,7 @@ class ContextInlineKeyboardGenerator(CombineInlineKeyboardGenerator):
         self.user_language = user_language
         self.kb_language = kb_language
         self.callback_pattern = callback_pattern
-        if initial_text is None:
-            self._text = translate_context(Language.english, self.user_language, "You forgot to change initial text")
-        else:
-            self.text = translate_context(self.kb_language, self.user_language, initial_text)
+
         data_for_translate = {
             "initial_text": initial_text,
             "top_buttons": top_buttons,
@@ -199,12 +196,24 @@ class ContextInlineKeyboardGenerator(CombineInlineKeyboardGenerator):
         }
         self.translated_data = translate_context(self_object=self, context_data=data_for_translate)
 
-        scroll_keys = self.create_buttons_list(scroll_buttons)
-        top_static_buttons = self.create_buttons_list(top_buttons)
-        bottom_static_buttons = self.create_buttons_list(bottom_buttons)
+        if initial_text is None:
+            self._text = translate_context(Language.english, self.user_language, "You forgot to change initial text")
+        else:
+            # self.text = translate_context(self.kb_language, self.user_language, initial_text)
+            self._text = self.translated_data["initial_text"]
 
-        super().__init__(scroll_keys, top_static_buttons, bottom_static_buttons,
-                         max_rows_number, start_row, scroll_step, user_language)
+        # scroll_keys = self.create_buttons_list(scroll_buttons)
+        scroll_keys = self.create_buttons_list(self.translated_data["scroll_buttons"])
+        # top_static_buttons = self.create_buttons_list(top_buttons)
+        top_static_buttons = self.create_buttons_list(self.translated_data["top_buttons"])
+        # bottom_static_buttons = self.create_buttons_list(bottom_buttons)
+        bottom_static_buttons = self.create_buttons_list(self.translated_data["bottom_buttons"])
+
+        super().__init__(
+            scroll_keys, top_static_buttons, bottom_static_buttons,
+            max_rows_number, start_row, scroll_step, user_language
+        )
+
         print("Клас всередині ContextInlineKeyboardGenerator - ", self.__class__)
         if scroll_keys:
             self.KEY_UP.text = translate_context(Language.english, self.user_language, self.KEY_UP.text)
@@ -225,9 +234,11 @@ class ContextInlineKeyboardGenerator(CombineInlineKeyboardGenerator):
                 buttons_list.append(self.create_buttons_list(item))
             elif isinstance(item, dict):
                 callback_data = item["callback_data"]
-                text = translate_context(self.kb_language, self.user_language, item["text"])
+                # text = translate_context(self.kb_language, self.user_language, item["text"])
+                text = item["text"]
                 if "message" in item.keys():
-                    message = translate_context(self.kb_language, self.user_language, item["message"])
+                    # message = translate_context(self.kb_language, self.user_language, item["message"])
+                    message = item["message"]
                     self.messages[callback_data] = message
                 buttons_list.append(InlineKeyboardButton(text=text, callback_data=callback_data))
         return buttons_list
@@ -260,7 +271,7 @@ class MyKeyboard(ContextInlineKeyboardGenerator):
             scroll_step: int = 1,
     ):
 
-        kb_language = Language.ukrainian
+        kb_language = "uk"
         callback_pattern = "#_test_"
         initial_text = "Привіт, це твоє початкове тестове повідомлення"
 
