@@ -73,8 +73,8 @@ services:
     build:
       context: piccolo_blue
       dockerfile: Dockerfile
-    ports:
-      - "7000:7000"
+    #ports:
+    #  - "7000:7000"
     #налаштування шлях хосту
     volumes:
       - ./piccolo_blue:/piccolo_blue
