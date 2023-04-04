@@ -2,7 +2,9 @@ from typing import Union
 from aiogram import Router
 from aiogram.filters import Command, Text
 from aiogram.types import Message, CallbackQuery
-from keyboards.inline import KeyKeyboard, MyKeyboard
+from keyboards.inline import KeyKeyboard
+# from keyboards.inline import MyKeyboard
+from keyboards.inline import MyCustomKeyboard
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
 from utils.storages import TmpStorage
@@ -19,13 +21,15 @@ router = Router()
 @router.message(Command(commands='test_kb'))
 @router.callback_query(Text(startswith="#_test_"))
 async def get_test_kb(event: Union[Message, CallbackQuery], state: FSMContext, tmp_storage: TmpStorage):
-    """Хендлер для тестової клавіатури MyKeyboard"""
+    """Хендлер для тестової клавіатури MyKeyboard та MyCustomKeyboard"""
     if isinstance(event, Message):
         await state.set_state(InlineStates.Inline)
 
         # user_language = event.from_user.language_code
-        user_language = "ru"
-        kb = MyKeyboard(user_language=user_language)
+        user_language = "uk"
+
+        # kb = MyKeyboard(user_language=user_language)
+        kb = MyCustomKeyboard(user_language=user_language)
 
         key = KeyKeyboard(
             bot_id=bot.id,
