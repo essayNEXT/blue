@@ -3,7 +3,7 @@ import os
 from piccolo.conf.apps import AppRegistry
 from piccolo.engine.postgres import PostgresEngine
 
-#Підключення до бази даних
+
 DB = PostgresEngine(
     config={
         "port": 5432,
