@@ -8,7 +8,6 @@ RUN pip install --upgrade pip
 
 RUN pip install 'piccolo[postgres]'
 
-# Инициализация проекта
 WORKDIR /piccolo_blue
 
 COPY . .
