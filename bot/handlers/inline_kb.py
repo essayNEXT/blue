@@ -3,8 +3,8 @@ from aiogram import Router
 from aiogram.filters import Command, Text
 from aiogram.types import Message, CallbackQuery
 from keyboards.inline import KeyKeyboard
-# from keyboards.inline import MyKeyboard
-from keyboards.inline import MyCustomKeyboard
+# from keyboards.custom_inline_keyboard import MyKeyboard
+from keyboards.custom_inline_keyboard import MyCustomKeyboard
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
 from utils.storages import TmpStorage
