@@ -28,9 +28,8 @@ async def get_test_kb(event: Union[Message, CallbackQuery], state: FSMContext, t
         # user_language = event.from_user.language_code
         user_language = "uk"
 
-        # kb = MyKeyboard(user_language=user_language)
         kb = MyCustomKeyboard(user_language=user_language)
-
+        # kb = MyKeyboard(user_language=user_language)
         key = KeyKeyboard(
             bot_id=bot.id,
             chat_id=event.chat.id,

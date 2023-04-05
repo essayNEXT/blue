@@ -138,7 +138,7 @@ class ContextInlineKeyboardGenerator(CombineInlineKeyboardGenerator):
         - callback_pattern: str - шаблон колбеку класу клавіатури
     Приймає необов'язкові параметри:
         - top_buttons: Optional[List[List[dict]]] - список словників верхніх кнопок
-        - scroll_buttons: Optional[List[List[dict]]] - список словників скрол кнопок
+        - scroll_buttons: Optional[List[List[dict]]] - список словників кнопок прокручування
         - bottom_buttons: Optional[List[List[dict]]] - список словників нижніх кнопок
         - initial_text: str - початковий текст при виклику клавіатури
         - max_rows_number: int - максимальна кількість об'єктів прокручування
@@ -251,32 +251,32 @@ class AbstractInlineKeyboard(ContextInlineKeyboardGenerator, ABC):
     @abstractmethod
     def define_initial_text(self) -> str:
         """Абстрактний метод для визначення початкового тексту клавіатури."""
-        pass
+        return None
 
     @abstractmethod
     def define_kb_language(self) -> str:
-        """Абстрактний метод для визначення мови клавіатури."""
+        """Абстрактний метод для визначення мови клавіатури. Обов`язковий для перевизначення у похідному класі."""
         pass
 
     @abstractmethod
     def define_callback_pattern(self) -> str:
-        """Абстрактний метод для визначення шаблону колбеку."""
+        """Абстрактний метод для визначення шаблону колбеку. Обов`язковий для перевизначення у похідному класі."""
         pass
 
     @abstractmethod
     def define_top_buttons(self) -> List[List[Dict[str, str]]]:
         """Абстрактний метод для визначення верхніх кнопок клавіатури."""
-        pass
+        return None
 
     @abstractmethod
     def define_scroll_buttons(self) -> List[List[Dict[str, str]]]:
         """Абстрактний метод для визначення кнопок прокручування клавіатури."""
-        pass
+        return None
 
     @abstractmethod
     def define_bottom_buttons(self) -> List[List[Dict[str, str]]]:
         """Абстрактний метод для визначення нижніх кнопок клавіатури."""
-        pass
+        return None
 
     @abstractmethod
     def callback(self, event: CallbackQuery) -> None:

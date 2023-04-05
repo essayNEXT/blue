@@ -6,14 +6,6 @@ from utils.translate.kb_translate import translate_context
 
 class MyCustomKeyboard(AbstractInlineKeyboard):
     """Приклад використання абстрактного класу створення клавіатури AbstractInlineKeyboard."""
-    def __init__(
-            self,
-            user_language: str,
-            max_rows_number: int = 5,
-            start_row: int = 0,
-            scroll_step: int = 1,
-    ):
-        super().__init__(user_language, max_rows_number, start_row, scroll_step)
 
     def define_initial_text(self) -> str:
         initial_text = "Hello, this is your initial test message"
