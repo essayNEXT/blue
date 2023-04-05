@@ -6,7 +6,7 @@ translation = {
     "uk": {
         "You forgot to change initial text": "Ти забув змінити параметр початкового тексту"
     },
-    "en": {"<class 'keyboards.inline.MyKeyboard'>": {
+    "en": {"<class 'keyboards.custom_inline_keyboard.MyKeyboard'>": {
         "initial_text": "Hello, this is your initial test message",
         "top_buttons": [
             [
