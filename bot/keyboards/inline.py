@@ -26,7 +26,13 @@ class KeyKeyboard:
 
 
 class ScrollInlineKeyboardGenerator:
-    """Створює скролінг об'єкт клавіатури"""
+    """Створює скролінг об'єкт клавіатури.
+    Приймає параметри:
+        - scroll_buttons: Optional[List[List[InlineKeyboardButton]]] - список списків кнопок прокручування
+        - max_rows_number: int - максимальна кількість об'єктів прокручування
+        - start_row: int - початковий рядок прокручування
+        - scroll_step: int - крок прокручування
+    """
     KEY_UP = InlineKeyboardButton(text="up", callback_data="scroll_up")
     KEY_DOWN = InlineKeyboardButton(text="down", callback_data="scroll_down")
 
@@ -145,12 +151,12 @@ class ContextInlineKeyboardGenerator(CombineInlineKeyboardGenerator):
         - start_row: int - початковий рядок прокручування
         - scroll_step: int - крок прокручування
         """
+    callback_pattern = ""
+    kb_language = ""
 
     def __init__(
             self,
             user_language: str,
-            kb_language: str,
-            callback_pattern: str,
             top_buttons: Optional[List[List[dict]]] = None,
             scroll_buttons: Optional[List[List[dict]]] = None,
             bottom_buttons: Optional[List[List[dict]]] = None,
@@ -160,10 +166,8 @@ class ContextInlineKeyboardGenerator(CombineInlineKeyboardGenerator):
             scroll_step: int = 1,
     ) -> None:
 
-        self.messages = {}
         self.user_language = user_language
-        self.kb_language = kb_language
-        self.callback_pattern = callback_pattern
+        self.messages = {}
 
         data_for_translate = {
             "initial_text": initial_text,
@@ -183,10 +187,9 @@ class ContextInlineKeyboardGenerator(CombineInlineKeyboardGenerator):
         bottom_static_buttons = self.create_buttons_list(self.translated_data["bottom_buttons"])
 
         super().__init__(
-            scroll_keys, top_static_buttons, bottom_static_buttons,
-            max_rows_number, start_row, scroll_step)
+            scroll_keys, top_static_buttons, bottom_static_buttons, max_rows_number, start_row, scroll_step
+        )
 
-        print("Клас всередині ContextInlineKeyboardGenerator - ", self.__class__)
         if scroll_keys:
             self.up_key.text = translate_context("en", self.user_language, self.KEY_UP.text)
             self.up_key.callback_data = self.callback_pattern + self.KEY_UP.callback_data
@@ -239,46 +242,46 @@ class AbstractInlineKeyboard(ContextInlineKeyboardGenerator, ABC):
             start_row: int = 0,
             scroll_step: int = 1,
     ):
-        kb_language = self.define_kb_language()
-        callback_pattern = self.define_callback_pattern()
         initial_text = self.define_initial_text()
         top_buttons = self.define_top_buttons()
         scroll_buttons = self.define_scroll_buttons()
         bottom_buttons = self.define_bottom_buttons()
-        super().__init__(user_language, kb_language, callback_pattern, top_buttons, scroll_buttons,
+        super().__init__(user_language, top_buttons, scroll_buttons,
                          bottom_buttons, initial_text, max_rows_number, start_row, scroll_step)
 
     @abstractmethod
     def define_initial_text(self) -> str:
         """Абстрактний метод для визначення початкового тексту клавіатури."""
-        return None
-
-    @abstractmethod
-    def define_kb_language(self) -> str:
-        """Абстрактний метод для визначення мови клавіатури. Обов`язковий для перевизначення у похідному класі."""
         pass
 
+    @property
     @abstractmethod
-    def define_callback_pattern(self) -> str:
-        """Абстрактний метод для визначення шаблону колбеку. Обов`язковий для перевизначення у похідному класі."""
+    def kb_language(self) -> str:
+        """Абстрактний метод для визначення мови клавіатури."""
+        pass
+
+    @property
+    @abstractmethod
+    def callback_pattern(self) -> str:
+        """Абстрактний метод для визначення шаблону колбеку."""
         pass
 
     @abstractmethod
     def define_top_buttons(self) -> List[List[Dict[str, str]]]:
         """Абстрактний метод для визначення верхніх кнопок клавіатури."""
-        return None
+        pass
 
     @abstractmethod
     def define_scroll_buttons(self) -> List[List[Dict[str, str]]]:
         """Абстрактний метод для визначення кнопок прокручування клавіатури."""
-        return None
+        pass
 
     @abstractmethod
     def define_bottom_buttons(self) -> List[List[Dict[str, str]]]:
         """Абстрактний метод для визначення нижніх кнопок клавіатури."""
-        return None
+        pass
 
     @abstractmethod
     def callback(self, event: CallbackQuery) -> None:
-        """Абстрактний метод для визначення нижніх кнопок клавіатури."""
+        """Абстрактний метод для обробки колбеків."""
         super(AbstractInlineKeyboard, self).callback(event)

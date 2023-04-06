@@ -6,7 +6,7 @@ translation = {
     "uk": {
         "You forgot to change initial text": "Ти забув змінити параметр початкового тексту"
     },
-    "en": {"<class 'keyboards.custom_inline_keyboard.MyKeyboard'>": {
+    "en": {"<class 'keyboards.custom_inline_keyboard.MyCustomKeyboard>'": {
         "initial_text": "Hello, this is your initial test message",
         "top_buttons": [
             [
@@ -118,11 +118,11 @@ def translate_context(
 
         # Перевіряємо наявність перекладу context_data для класу клавіатури в базі даних
         if trg_lan in translation.keys() and str(self_object.__class__) in translation[trg_lan].keys():
-            print("Context_data get from DB")
+            print("Context_data - get from db")
             return translation[trg_lan][str(self_object.__class__)]  # повинні отримати з БД
         # Якщо в базі даних переклад відсутній, то виконуємо переклад поелементно
         else:
-            print(f"Google translate every single element of keyboard from {src_lng} to {trg_lan}")
+            print(f"Google translate every single element of context_data from {src_lng} to {trg_lan}")
             context_data["initial_text"] = google_translate(trg_lan, context_data["initial_text"])
             context_data["top_buttons"] = translate_buttons_list(trg_lan, context_data["top_buttons"])
             context_data["scroll_buttons"] = translate_buttons_list(trg_lan, context_data["scroll_buttons"])
