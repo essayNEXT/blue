@@ -217,16 +217,16 @@ class ContextInlineKeyboardGenerator(CombineInlineKeyboardGenerator):
         return buttons_list
 
     @property
-    def text(self):
+    def text(self) -> str:
         """Повертає self._text"""
         return self._text
 
     @text.setter
-    def text(self, value):
+    def text(self, value: str) -> None:
         """Змінює або задає self._text"""
         self._text = value
 
-    def callback(self, event: CallbackQuery):
+    def callback(self, event: CallbackQuery) -> None:
         """Функція обробки колбеків. За необхідності можна перевизначити в похідному класі.
         За замовчуванням замінює параметр self._text на повідомлення при натисканні кнопки."""
         self._text = self.messages[event.data]
