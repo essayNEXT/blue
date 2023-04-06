@@ -1,5 +1,4 @@
-from typing import List, Dict
-from .inline import AbstractInlineKeyboard
+from .inline import AbstractInlineKeyboard, KeyboardOfDict
 from aiogram.types import CallbackQuery
 # from utils.translate.kb_translate import translate_context
 
@@ -21,7 +20,7 @@ class MyCustomKeyboard(AbstractInlineKeyboard):
         callback_pattern = "#_test_"
         return callback_pattern
 
-    def define_top_buttons(self) -> List[List[Dict[str, str]]]:
+    def define_top_buttons(self) -> KeyboardOfDict:
         top_buttons = [
             [
                 {"callback_data": "#_test_button_1",
@@ -39,7 +38,7 @@ class MyCustomKeyboard(AbstractInlineKeyboard):
         ]
         return top_buttons
 
-    def define_scroll_buttons(self) -> List[List[Dict[str, str]]]:
+    def define_scroll_buttons(self) -> KeyboardOfDict:
         scroll_buttons = [
             [
                 {"callback_data": f"#_test_button_scroll_{num}",
@@ -48,7 +47,7 @@ class MyCustomKeyboard(AbstractInlineKeyboard):
         ]
         return scroll_buttons
 
-    def define_bottom_buttons(self) -> List[List[Dict[str, str]]]:
+    def define_bottom_buttons(self) -> KeyboardOfDict:
         bottom_buttons = [
             [
                 {"callback_data": "#_test_button_4",
