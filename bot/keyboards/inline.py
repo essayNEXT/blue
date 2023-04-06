@@ -14,8 +14,8 @@ from abc import ABC, abstractmethod
 
 # Оголошення типів для створення клавіатури
 ButtonDict = Dict[str, str]
-RawOfDict = List[ButtonDict]
-KeyboardOfDict = List[RawOfDict]
+RawOfButtonDict = List[ButtonDict]
+KeyboardOfDict = List[RawOfButtonDict]
 RawOfInlineButton = List[InlineKeyboardButton]
 KeyboardOfInlineButton = List[RawOfInlineButton]
 
