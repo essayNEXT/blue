@@ -13,11 +13,11 @@ from abc import ABC, abstractmethod
 #     english = "en"
 
 # Оголошення типів для створення клавіатури
-ButtonDict = Dict[str, str]
-RawOfButtonDict = List[ButtonDict]
-KeyboardOfDict = List[RawOfButtonDict]
-RawOfInlineButton = List[InlineKeyboardButton]
-KeyboardOfInlineButton = List[RawOfInlineButton]
+ButtonDict = Dict[str, str]  # Словник з даними для формування InlineKeyboardButton
+RawOfButtonDict = List[ButtonDict]  # Список зі словниками для формування InlineKeyboardButton, що утворює ряд
+KeyboardOfDict = List[RawOfButtonDict]  # Цілісний список з рядами кнопок у вигляді словника
+RawOfInlineButton = List[InlineKeyboardButton]  # Список об'єктів InlineKeyboardButton
+KeyboardOfInlineButton = List[RawOfInlineButton]  # Цілісний список з рядами кнопок у форматі InlineKeyboardButton
 
 
 @dataclass(frozen=True)
