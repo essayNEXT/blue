@@ -1,5 +1,4 @@
 from .inline import KeyboardOfDict, ContextInlineKeyboardGenerator
-from aiogram.types import CallbackQuery
 from utils.translate.kb_translate import translate_context
 
 
@@ -64,4 +63,3 @@ class MyCustomKeyboard(ContextInlineKeyboardGenerator):
             ]
         ]
         return bottom_buttons
-
