@@ -1,12 +1,13 @@
-from .inline import AbstractInlineKeyboard, KeyboardOfDict
+from .inline import KeyboardOfDict, ContextInlineKeyboardGenerator
 from aiogram.types import CallbackQuery
-# from utils.translate.kb_translate import translate_context
+from utils.translate.kb_translate import translate_context
 
 
-class MyCustomKeyboard(AbstractInlineKeyboard):
+class MyCustomKeyboard(ContextInlineKeyboardGenerator):
     """Приклад використання абстрактного класу створення клавіатури AbstractInlineKeyboard."""
 
-    def define_initial_text(self) -> str:
+    @property
+    def initial_text(self) -> str:
         initial_text = "Hello, this is your initial test message"
         return initial_text
 
@@ -20,7 +21,12 @@ class MyCustomKeyboard(AbstractInlineKeyboard):
         callback_pattern = "#_test_"
         return callback_pattern
 
-    def define_top_buttons(self) -> KeyboardOfDict:
+    @property
+    def translate_function(self):
+        return translate_context
+
+    @property
+    def top_buttons(self) -> KeyboardOfDict:
         top_buttons = [
             [
                 {"callback_data": "#_test_button_1",
@@ -38,7 +44,8 @@ class MyCustomKeyboard(AbstractInlineKeyboard):
         ]
         return top_buttons
 
-    def define_scroll_buttons(self) -> KeyboardOfDict:
+    @property
+    def scroll_buttons(self) -> KeyboardOfDict:
         scroll_buttons = [
             [
                 {"callback_data": f"#_test_button_scroll_{num}",
@@ -47,7 +54,8 @@ class MyCustomKeyboard(AbstractInlineKeyboard):
         ]
         return scroll_buttons
 
-    def define_bottom_buttons(self) -> KeyboardOfDict:
+    @property
+    def bottom_buttons(self) -> KeyboardOfDict:
         bottom_buttons = [
             [
                 {"callback_data": "#_test_button_4",
@@ -57,5 +65,3 @@ class MyCustomKeyboard(AbstractInlineKeyboard):
         ]
         return bottom_buttons
 
-    def callback(self, event: CallbackQuery) -> None:
-        super(MyCustomKeyboard, self).callback(event)
