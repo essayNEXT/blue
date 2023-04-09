@@ -27,7 +27,8 @@ DEBUG = int(os.environ.get('DEBUG', default=0))
 
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS').split(' ')
 
-CSRF_TRUSTED_ORIGINS = ['https://*.mydomain.com', 'https://*.127.0.0.1', 'http://localhost:1337', ]
+CSRF_TRUSTED_ORIGINS = ['https://*.mydomain.com', 'https://*.127.0.0.1',
+                        'http://localhost:1337', 'http://www.diet-online.agency']
 # CSRF_COOKIE_SECURE = False
 
 # Application definition
