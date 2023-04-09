@@ -1,5 +1,5 @@
 from itertools import chain
-from typing import List, Dict, TypeVar, Callable
+from typing import List, Dict, Callable
 from aiogram.utils.keyboard import InlineKeyboardButton, InlineKeyboardMarkup
 from dataclasses import dataclass
 from aiogram.types import CallbackQuery
@@ -17,7 +17,6 @@ RawOfButtonDict = List[ButtonDict]  # Список зі словниками д�
 KeyboardOfDict = List[RawOfButtonDict]  # Цілісний список з рядами кнопок у вигляді словника
 RawOfInlineButton = List[InlineKeyboardButton]  # Список об'єктів InlineKeyboardButton
 KeyboardOfInlineButton = List[RawOfInlineButton]  # Цілісний список з рядами кнопок у форматі InlineKeyboardButton
-KbDictList = TypeVar("KbDictList")
 
 
 @dataclass(frozen=True)
@@ -41,8 +40,8 @@ class ScrollInlineKeyboardGenerator:
         - start_row: int - початковий рядок прокручування
         - scroll_step: int - крок прокручування
     """
-    KEY_UP = InlineKeyboardButton(text="up", callback_data="scroll_up")
-    KEY_DOWN = InlineKeyboardButton(text="down", callback_data="scroll_down")
+    up_key: InlineKeyboardButton
+    down_key: InlineKeyboardButton
 
     def __init__(
             self,
@@ -57,8 +56,9 @@ class ScrollInlineKeyboardGenerator:
         self.start_row = start_row
         self.scroll_step = scroll_step
 
-        self.up_key = self.KEY_UP.copy()
-        self.down_key = self.KEY_DOWN.copy()
+        if not self.up_key and self.down_key:
+            self.up_key = InlineKeyboardButton(text="⬆️", callback_data="scroll_up")
+            self.down_key = InlineKeyboardButton(text="⬇️", callback_data="scroll_down")
 
     def _get_current_scroll_keyboard_list(self) -> KeyboardOfInlineButton:
         """Повертає поточний список скролінгової клавіатури."""
@@ -179,28 +179,27 @@ class ContextInlineKeyboardGenerator(CombineInlineKeyboardGenerator, ABC):
             "scroll_buttons": self.scroll_buttons,
             "bottom_buttons": self.bottom_buttons
         }
-        self.translated_data = self.translate_function(self_object=self, context_data=data_for_translate)
 
-        if self.initial_text is None:
-            self._text = self.translate_function("en", self.user_language, "You forgot to change initial text")
+        if self.translate_function is None:
+            self.translated_data = data_for_translate
         else:
-            self._text = self.translated_data["initial_text"]
+            self.translated_data = self.translate_function(self_object=self, context_data=data_for_translate)
+
+        self._text = self.translated_data["initial_text"]
 
         scroll_keys = self._create_buttons_list(self.translated_data["scroll_buttons"])
         top_static_buttons = self._create_buttons_list(self.translated_data["top_buttons"])
         bottom_static_buttons = self._create_buttons_list(self.translated_data["bottom_buttons"])
 
+        if scroll_keys:
+            self.up_key = InlineKeyboardButton(text="⬆️", callback_data=f"{self.callback_pattern}scroll_up")
+            self.down_key = InlineKeyboardButton(text="⬇️", callback_data=f"{self.callback_pattern}scroll_down")
+
         super().__init__(
             scroll_keys, top_static_buttons, bottom_static_buttons, max_rows_number, start_row, scroll_step
         )
 
-        if scroll_keys:
-            self.up_key.text = self.translate_function("en", self.user_language, self.KEY_UP.text)
-            self.up_key.callback_data = self.callback_pattern + self.KEY_UP.callback_data
-            self.down_key.text = self.translate_function("en", self.user_language, self.KEY_DOWN.text)
-            self.down_key.callback_data = self.callback_pattern + self.KEY_DOWN.callback_data
-
-    def _create_buttons_list(self, dict_list: KbDictList) -> KbDictList:
+    def _create_buttons_list(self, dict_list: KeyboardOfDict) -> KeyboardOfInlineButton:
         """
         Функція приймає dict_list:List[List[dict]] та повертає об'єкт списку списків з інлайн клавіатурами типу
         List[List[InlineKeyboardButton]], що необхідно для подальшого формування клавіатури.
