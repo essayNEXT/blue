@@ -1,5 +1,5 @@
 from itertools import chain
-from typing import List, Dict, TypeVar
+from typing import List, Dict, TypeVar, Callable
 from aiogram.utils.keyboard import InlineKeyboardButton, InlineKeyboardMarkup
 from dataclasses import dataclass
 from aiogram.types import CallbackQuery
@@ -22,7 +22,7 @@ KbDictList = TypeVar("KbDictList")
 
 @dataclass(frozen=True)
 class KeyKeyboard:
-    """Описує ключ для ідентифікації примірника клавіатури та повідомлення"""
+    """Описує ключ для ідентифікації примірника клавіатури та повідомлення."""
 
     __slots__ = ["bot_id", "chat_id", "user_id", "message_id"]
 
@@ -33,7 +33,8 @@ class KeyKeyboard:
 
 
 class ScrollInlineKeyboardGenerator:
-    """Створює скролінг об'єкт клавіатури.
+    """
+    Створює скролінг об'єкт клавіатури.
     Приймає параметри:
         - scroll_buttons: Optional[List[List[InlineKeyboardButton]]] - список списків кнопок прокручування
         - max_rows_number: int - максимальна кількість об'єктів прокручування
@@ -60,7 +61,7 @@ class ScrollInlineKeyboardGenerator:
         self.down_key = self.KEY_DOWN.copy()
 
     def _get_current_scroll_keyboard_list(self) -> KeyboardOfInlineButton:
-        """Повертає поточний список скролінгової клавіатури"""
+        """Повертає поточний список скролінгової клавіатури."""
         self.numbers_of_buttons_to_show = self.max_rows_number
         current_scroll_keyboard: KeyboardOfInlineButton = []
         if self.start_row != 0:
@@ -84,14 +85,14 @@ class ScrollInlineKeyboardGenerator:
             )
 
     def markup(self) -> InlineKeyboardMarkup:
-        """Повертає теперішній стан скролінг клавіатури"""
+        """Повертає теперішній стан скролінг клавіатури."""
         return InlineKeyboardMarkup(
             inline_keyboard=self._get_current_scroll_keyboard_list()
         )
 
     def markup_up(self) -> InlineKeyboardMarkup:
-        """Повертає клавіатуру на 'один крок вперед'.
-
+        """
+        Повертає клавіатуру на 'один крок вперед'.
         Змінює значення внутрішніх змінних, які зберігаються в стані клавіатури після кроку 'вперед'
         і повертає новий об'єкт клавіатури.
         """
@@ -102,8 +103,8 @@ class ScrollInlineKeyboardGenerator:
         return self.markup()
 
     def markup_down(self) -> InlineKeyboardMarkup:
-        """Повертає клавіатуру на 'один крок назад'.
-
+        """
+        Повертає клавіатуру на 'один крок назад'.
         Змінює значення внутрішніх змінних, які зберігаються в стані клавіатури після кроку 'назад'
         і повертає новий об'єкт клавіатури.
         """
@@ -116,7 +117,7 @@ class ScrollInlineKeyboardGenerator:
 
 
 class CombineInlineKeyboardGenerator(ScrollInlineKeyboardGenerator):
-    """Створює комбінований об'єкт клавіатури: скролінг та додаткові кнопки"""
+    """Створює комбінований об'єкт клавіатури: скролінг та додаткові кнопки."""
 
     def __init__(
             self,
@@ -143,16 +144,17 @@ class CombineInlineKeyboardGenerator(ScrollInlineKeyboardGenerator):
 
 
 class ContextInlineKeyboardGenerator(CombineInlineKeyboardGenerator, ABC):
-    """Клас-шаблон для створення клавіатури.
-    Приймає параметри:
+    """
+    Клас-шаблон для створення клавіатури.
+    Параметри класу:
         - user_language: str - мова користувача
         - user_id: int - id номер користувача telegram
         - kb_language: str - мова на якій створений клас клавіатури
         - callback_pattern: str - шаблон колбеку класу клавіатури
-        - top_buttons: List[List[dict]] | KeyboardOfDict  - список словників верхніх кнопок
-        - scroll_buttons: List[List[dict]]] | KeyboardOfDict - список словників кнопок прокручування
-        - bottom_buttons: List[List[dict]] | KeyboardOfDict - список словників нижніх кнопок
         - initial_text: str - початковий текст при виклику клавіатури
+        - top_buttons: List[List[dict]] | KeyboardOfDict  - список словників верхніх кнопок
+        - scroll_buttons: List[List[dict]] | KeyboardOfDict - список словників кнопок прокручування
+        - bottom_buttons: List[List[dict]] | KeyboardOfDict - список словників нижніх кнопок
         - max_rows_number: int - максимальна кількість об'єктів прокручування
         - start_row: int - початковий рядок прокручування
         - scroll_step: int - крок прокручування
@@ -199,10 +201,12 @@ class ContextInlineKeyboardGenerator(CombineInlineKeyboardGenerator, ABC):
             self.down_key.callback_data = self.callback_pattern + self.KEY_DOWN.callback_data
 
     def _create_buttons_list(self, dict_list: KbDictList) -> KbDictList:
-        """Функція приймає dict_list:List[List[dict]] та повертає об'єкт списку списків з інлайн клавіатурами типу
+        """
+        Функція приймає dict_list:List[List[dict]] та повертає об'єкт списку списків з інлайн клавіатурами типу
         List[List[InlineKeyboardButton]], що необхідно для подальшого формування клавіатури.
         При створенні клавіатури заповнюється словник даних self.messages, що відповідає за повідомлення при натисканні
-        кнопок. Кнопки та повідомлення перекладаються на необхідну мову self.user_language"""
+        кнопок. Кнопки та повідомлення перекладаються на необхідну мову self.user_language.
+        """
         if dict_list is None:
             return []
         buttons_list = []
@@ -229,8 +233,10 @@ class ContextInlineKeyboardGenerator(CombineInlineKeyboardGenerator, ABC):
         self._text = value
 
     def callback(self, event: CallbackQuery) -> None:
-        """Функція обробки колбеків. За необхідності можна перевизначити в похідному класі.
-        За замовчуванням замінює параметр self._text на повідомлення при натисканні кнопки."""
+        """
+        Функція обробки колбеків. За необхідності можна перевизначити в похідному класі.
+        За замовчуванням замінює параметр self._text на повідомлення при натисканні кнопки.
+        """
         self._text = self.messages[event.data]
 
     @property
@@ -253,7 +259,7 @@ class ContextInlineKeyboardGenerator(CombineInlineKeyboardGenerator, ABC):
 
     @property
     @abstractmethod
-    def translate_function(self):
+    def translate_function(self) -> Callable:
         """Абстрактний метод для визначення функції перекладу."""
         pass
 
