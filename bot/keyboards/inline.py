@@ -1,8 +1,10 @@
+from aiogram import Dispatcher, Router
 from itertools import chain
 from typing import List, Dict, Callable
 from aiogram.utils.keyboard import InlineKeyboardButton, InlineKeyboardMarkup
 from dataclasses import dataclass
 from aiogram.types import CallbackQuery
+from aiogram.filters import Text
 # from enum import Enum
 from abc import ABC, abstractmethod
 
@@ -40,8 +42,8 @@ class ScrollInlineKeyboardGenerator:
         - start_row: int - початковий рядок прокручування
         - scroll_step: int - крок прокручування
     """
-    up_key: InlineKeyboardButton
-    down_key: InlineKeyboardButton
+    up_key = InlineKeyboardButton(text="⬆️", callback_data="scroll_up")
+    down_key = InlineKeyboardButton(text="⬇️", callback_data="scroll_down")
 
     def __init__(
             self,
@@ -49,6 +51,7 @@ class ScrollInlineKeyboardGenerator:
             max_rows_number: int = 5,
             start_row: int = 0,
             scroll_step: int = 1,
+            dp: Dispatcher | Router | None = None
     ) -> None:
 
         self.scroll_keys = scroll_keys
@@ -56,9 +59,18 @@ class ScrollInlineKeyboardGenerator:
         self.start_row = start_row
         self.scroll_step = scroll_step
 
-        if not self.up_key and self.down_key:
-            self.up_key = InlineKeyboardButton(text="⬆️", callback_data="scroll_up")
-            self.down_key = InlineKeyboardButton(text="⬇️", callback_data="scroll_down")
+        # перевіряємо чи було передано до екземпляра класу хендлер або роутер, якщо так, то реєструємо хендлер
+        if dp:
+            self.dp = dp
+            self.dp.callback_query.register(self._scroll_kb, Text(startswith="scroll_"))
+
+    async def _scroll_kb(self, call: CallbackQuery):
+        """Хендлер обробки колбеків від кнопок вверх та вниз"""
+        if call.data.endswith("up"):
+            self.markup_up()
+        elif call.data.endswith("down"):
+            self.markup_down()
+        await call.message.edit_reply_markup(reply_markup=self.markup())
 
     def _get_current_scroll_keyboard_list(self) -> KeyboardOfInlineButton:
         """Повертає поточний список скролінгової клавіатури."""
@@ -67,7 +79,8 @@ class ScrollInlineKeyboardGenerator:
         if self.start_row != 0:
             current_scroll_keyboard = [[self.up_key]] + current_scroll_keyboard
             self.numbers_of_buttons_to_show -= 1
-        if self.start_row + self.numbers_of_buttons_to_show >= len(self.scroll_keys) - 1:
+        # if self.start_row + self.numbers_of_buttons_to_show >= len(self.scroll_keys) - 1:
+        if self.start_row + self.numbers_of_buttons_to_show >= len(self.scroll_keys):
             return (
                     current_scroll_keyboard
                     + self.scroll_keys[
@@ -127,8 +140,9 @@ class CombineInlineKeyboardGenerator(ScrollInlineKeyboardGenerator):
             max_rows_number: int = 5,
             start_row: int = 0,
             scroll_step: int = 1,
+            dp: Dispatcher | Router | None = None
     ) -> None:
-        super().__init__(scroll_keys, max_rows_number, start_row, scroll_step)
+        super().__init__(scroll_keys, max_rows_number, start_row, scroll_step, dp)
         if not top_static_buttons:
             top_static_buttons = []
         self.top_static_buttons = top_static_buttons
@@ -158,6 +172,7 @@ class ContextInlineKeyboardGenerator(CombineInlineKeyboardGenerator, ABC):
         - max_rows_number: int - максимальна кількість об'єктів прокручування
         - start_row: int - початковий рядок прокручування
         - scroll_step: int - крок прокручування
+        - dp: Dispatcher | Router | None = None - диспетчер або роутер для уловлювання колбеків
         """
 
     def __init__(
@@ -167,6 +182,7 @@ class ContextInlineKeyboardGenerator(CombineInlineKeyboardGenerator, ABC):
             max_rows_number: int = 5,
             start_row: int = 0,
             scroll_step: int = 1,
+            dp: Dispatcher | Router | None = None
     ) -> None:
 
         self.user_language = user_language
@@ -191,12 +207,8 @@ class ContextInlineKeyboardGenerator(CombineInlineKeyboardGenerator, ABC):
         top_static_buttons = self._create_buttons_list(self.translated_data["top_buttons"])
         bottom_static_buttons = self._create_buttons_list(self.translated_data["bottom_buttons"])
 
-        if scroll_keys:
-            self.up_key = InlineKeyboardButton(text="⬆️", callback_data=f"{self.callback_pattern}scroll_up")
-            self.down_key = InlineKeyboardButton(text="⬇️", callback_data=f"{self.callback_pattern}scroll_down")
-
         super().__init__(
-            scroll_keys, top_static_buttons, bottom_static_buttons, max_rows_number, start_row, scroll_step
+            scroll_keys, top_static_buttons, bottom_static_buttons, max_rows_number, start_row, scroll_step, dp
         )
 
     def _create_buttons_list(self, dict_list: KeyboardOfDict) -> KeyboardOfInlineButton:
