@@ -54,12 +54,25 @@ services:
     ports:
       - "5050:80"
 
+  certbot:
+    image: certbot/certbot:latest
+    container_name: certbot
+    profiles:
+      - "ssl"
+    volumes:
+      - etc-letsencrypt:/etc/letsencrypt
+      - www-html:/var/www/html
+    depends_on:
+     - nginx
+    command: certonly --webroot --webroot-path=/var/www/html --email 19taurus79@gmail.com --agree-tos --no-eff-email -d diet-online.agency
+
 
   nginx:
     build: ./nginx
     volumes:
       - static_volume:/home/app/web/staticfiles
-      - ./certbot/www:/var/www/certbot/
+      - etc-letsencrypt:/etc/letsencrypt
+      - www-html:/var/www/html
     ports:
       - '80:80'
       - '443:443'
@@ -83,6 +96,8 @@ volumes:
   pgadmin_data:
   static_volume:
   redis_data:
+  www-html:
+  etc-letsencrypt:
 
 
 
