@@ -1,43 +1,14 @@
 from googletrans import Translator
-from typing import List
+from typing import List, TypeVar
+
+ButtonDictList = TypeVar("ButtonDictList")
 
 # Імітація бази даних перекладу клавіатури
 translation = {
     "uk": {
         "You forgot to change initial text": "Ти забув змінити параметр початкового тексту"
     },
-    "en": {"<class 'keyboards.custom_inline_keyboard.MyCustomKeyboard>'": {
-        "initial_text": "Hello, this is your initial test message",
-        "top_buttons": [
-            [
-                {"callback_data": "#_test_button_1",
-                 "text": "Button 1",
-                 "message": "You pressed the top button 1"},
-                {"callback_data": "#_test_button_2",
-                 "text": "Button 2",
-                 "message": "You pressed the top button 2"}
-            ],
-            [
-                {"callback_data": "#_test_button_3",
-                 "text": "Button 3",
-                 "message": "You pressed the top button 3"}
-            ]
-        ],
-        "bottom_buttons": [
-            [
-                {"callback_data": "#_test_button_4",
-                 "text": "Button 4",
-                 "message": "You pressed the bottom button 4"}
-            ]
-        ],
-        "scroll_buttons": [
-            [
-                {"callback_data": f"#_test_button_scroll_{num}",
-                 "text": f"Scroll button {num}",
-                 "message": f"You pressed the scroll button {num}"}
-            ] for num in range(1, 8)
-        ]
-    }},
+    "en": {},
     "ru": {
         "button_2": "Кнопка 2"
     }
@@ -74,7 +45,7 @@ def translate_context(
     Повертає відповідні об'єкти в залежності від варіанту введених вхідних даних.
     """
 
-    def translate_buttons_list(target_lan: str, buttons_list: List[List[dict]]) -> List[List[dict]]:
+    def translate_buttons_list(target_lan: str, buttons_list: ButtonDictList) -> ButtonDictList:
         """Функція перекладу списку списків словників кнопок клавіатури"""
         if buttons_list is None:
             return []
