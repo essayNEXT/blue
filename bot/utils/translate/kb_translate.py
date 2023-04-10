@@ -1,5 +1,5 @@
 from googletrans import Translator
-from typing import List, TypeVar
+from typing import TypeVar
 
 ButtonDictList = TypeVar("ButtonDictList")
 
