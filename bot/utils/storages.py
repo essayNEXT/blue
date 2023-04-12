@@ -17,6 +17,7 @@ class TmpStorage(dict):
     - min_lifetime_sec: int - мінімальний час зберігання елемента (сигнальний параметр)
     - max_lifetime_sec: int - максимальний час зберігання елемента
     """
+
     def __init__(
         self,
         max_number_of_elements: int = 32,

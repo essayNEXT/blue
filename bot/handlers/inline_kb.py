@@ -16,12 +16,13 @@ class InlineStates(StatesGroup):
 router = Router()
 
 
-@router.message(Command(commands='inline_kb'))
+@router.message(Command(commands="inline_kb"))
 async def get_inline_kb(event: Message, state: FSMContext, tmp_storage: TmpStorage):
     """Хендлер реагує на команду /inline_kb та створює об'єкт інлайн клавіатури.
     Клавіатура складається з 20 скролінгових кнопок та двох статичних.
     Максимальна кількість 'видимих' скролінг кнопок визначається при створенні об'єкта CombineInlineKeyboardGenerator.
-    Екземпляр клавіатури тимчасово зберігається в сховищі tmp_storage: TmpStorage диспетчера."""
+    Екземпляр клавіатури тимчасово зберігається в сховищі tmp_storage: TmpStorage диспетчера.
+    """
     print(f"tmp_storage: {tmp_storage}")
     print(f"type of tmp_storage: {type(tmp_storage)}")
     print(f"id of tmp_storage: {id(tmp_storage)}")
@@ -30,71 +31,74 @@ async def get_inline_kb(event: Message, state: FSMContext, tmp_storage: TmpStora
     scroll_key_buttons = [
         [
             InlineKeyboardButton(
-                text=f"Inline button {button}",
-                callback_data=f"inline_button_{button}"
+                text=f"Inline button {button}", callback_data=f"inline_button_{button}"
             )
-        ] for button in range(1, num_of_scrolls + 1)
+        ]
+        for button in range(1, num_of_scrolls + 1)
     ]
 
     additional_buttons = [
         [
             InlineKeyboardButton(
-                text="Additional button 1",
-                callback_data="additional_button_1"
+                text="Additional button 1", callback_data="additional_button_1"
             ),
         ],
         [
             InlineKeyboardButton(
-                text="Additional button 2",
-                callback_data="additional_button_2"
+                text="Additional button 2", callback_data="additional_button_2"
             ),
-        ]
+        ],
     ]
 
     kb = CombineInlineKeyboardGenerator(
         scroll_keys=scroll_key_buttons,
         additional_buttons_list=additional_buttons,
         max_rows_number=5,
-        scroll_step=1
+        scroll_step=1,
     )
 
     key = KeyKeyboard(
         bot_id=bot.id,
         chat_id=event.chat.id,
         user_id=event.from_user.id if event.from_user else None,
-        message_id=event.message_id
+        message_id=event.message_id,
     )
     print(f"key for keyboard is {key}")
     tmp_storage[key] = kb
     print(f"tmp_storage after add kb: {tmp_storage}")
-    await event.answer("Це твоя інлайн клавіатура",
-                       reply_markup=tmp_storage[key].markup())
+    await event.answer(
+        "Це твоя інлайн клавіатура", reply_markup=tmp_storage[key].markup()
+    )
 
 
 @router.callback_query(Text(text="keyboard_down"))
 async def down_button(event: CallbackQuery, tmp_storage: TmpStorage):
     """Хендлер відловлює колбек кнопки 'вниз'. Витягує зі сховища об'єкт клавіатури.
-    При натисканні кнопки 'вниз' переходить на наступний рівень пагінації викликом функції markup_down."""
+    При натисканні кнопки 'вниз' переходить на наступний рівень пагінації викликом функції markup_down.
+    """
     key = KeyKeyboard(
         bot_id=bot.id,
         chat_id=event.message.chat.id,
         user_id=event.from_user.id if event.from_user else None,
-        message_id=event.message.message_id - 1
+        message_id=event.message.message_id - 1,
     )
     print(f"key for keyboard is {key}")
-    await event.message.edit_text("Клавіатура після кнопки вниз",
-                                  reply_markup=tmp_storage[key].markup_down())
+    await event.message.edit_text(
+        "Клавіатура після кнопки вниз", reply_markup=tmp_storage[key].markup_down()
+    )
 
 
 @router.callback_query(Text(text="keyboard_up"))
 async def up_button(event: CallbackQuery, tmp_storage: TmpStorage):
     """Хендлер відловлює колбек кнопки 'вверх'. Витягує зі сховища об'єкт клавіатури.
-    При натисканні кнопки 'вверх' переходить на попередній рівень пагінації викликом функції markup_up."""
+    При натисканні кнопки 'вверх' переходить на попередній рівень пагінації викликом функції markup_up.
+    """
     key = KeyKeyboard(
         bot_id=bot.id,
         chat_id=event.message.chat.id,
         user_id=event.from_user.id if event.from_user else None,
-        message_id=event.message.message_id - 1
+        message_id=event.message.message_id - 1,
     )
-    await event.message.edit_text("Клавіатура після кнопки вверх",
-                                  reply_markup=tmp_storage[key].markup_up())
+    await event.message.edit_text(
+        "Клавіатура після кнопки вверх", reply_markup=tmp_storage[key].markup_up()
+    )

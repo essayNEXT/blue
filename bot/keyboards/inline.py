@@ -23,11 +23,11 @@ class ScrollInlineKeyboardGenerator:
     """Створює скролінг об'єкт клавіатури"""
 
     def __init__(
-            self,
-            scroll_keys: List[List[InlineKeyboardButton]],
-            max_rows_number: int = 5,
-            start_row: int = 0,
-            scroll_step: int = 1
+        self,
+        scroll_keys: List[List[InlineKeyboardButton]],
+        max_rows_number: int = 5,
+        start_row: int = 0,
+        scroll_step: int = 1,
     ) -> None:
         self.scroll_keys = scroll_keys
         self.max_rows_number = max_rows_number
@@ -41,11 +41,14 @@ class ScrollInlineKeyboardGenerator:
         if self.start_row != 0:
             current_scroll_keyboard = [[KEY_UP]] + current_scroll_keyboard
             self.numbers_of_buttons_to_show -= 1
-        if self.start_row + self.numbers_of_buttons_to_show >= len(self.scroll_keys) - 1:
+        if (
+            self.start_row + self.numbers_of_buttons_to_show
+            >= len(self.scroll_keys) - 1
+        ):
             return (
                 current_scroll_keyboard
                 + self.scroll_keys[
-                    self.start_row:(self.start_row + self.numbers_of_buttons_to_show)
+                    self.start_row : (self.start_row + self.numbers_of_buttons_to_show)
                 ]
             )
         else:
@@ -53,7 +56,7 @@ class ScrollInlineKeyboardGenerator:
             return (
                 current_scroll_keyboard
                 + self.scroll_keys[
-                    self.start_row: (self.start_row + self.numbers_of_buttons_to_show)
+                    self.start_row : (self.start_row + self.numbers_of_buttons_to_show)
                 ]
                 + [[KEY_DOWN]]
             )
@@ -71,8 +74,9 @@ class ScrollInlineKeyboardGenerator:
         і повертає новий об'єкт клавіатури.
         """
         self.start_row = (
-            self.start_row -
-            self.numbers_of_buttons_to_show if self.start_row - self.numbers_of_buttons_to_show >= 0 else 0
+            self.start_row - self.numbers_of_buttons_to_show
+            if self.start_row - self.numbers_of_buttons_to_show >= 0
+            else 0
         )
         return self.markup()
 
@@ -84,7 +88,8 @@ class ScrollInlineKeyboardGenerator:
         """
         self.start_row = (
             (self.start_row + self.numbers_of_buttons_to_show)
-            if (self.start_row + (self.numbers_of_buttons_to_show - 1)) < len(self.scroll_keys)
+            if (self.start_row + (self.numbers_of_buttons_to_show - 1))
+            < len(self.scroll_keys)
             else len(self.scroll_keys) - self.numbers_of_buttons_to_show
         )
         return self.markup()
@@ -94,12 +99,12 @@ class CombineInlineKeyboardGenerator(ScrollInlineKeyboardGenerator):
     """Створює комбінований об'єкт клавіатури: скролінг та додаткові кнопки"""
 
     def __init__(
-            self,
-            scroll_keys: List[List[InlineKeyboardButton]],
-            additional_buttons_list: Optional[List[List[InlineKeyboardButton]]] = None,
-            max_rows_number: int = 5,
-            start_row: int = 0,
-            scroll_step: int = 1
+        self,
+        scroll_keys: List[List[InlineKeyboardButton]],
+        additional_buttons_list: Optional[List[List[InlineKeyboardButton]]] = None,
+        max_rows_number: int = 5,
+        start_row: int = 0,
+        scroll_step: int = 1,
     ) -> None:
         super().__init__(scroll_keys, max_rows_number, start_row, scroll_step)
         if not additional_buttons_list:
