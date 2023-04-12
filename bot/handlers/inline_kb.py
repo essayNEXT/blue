@@ -58,7 +58,7 @@ async def get_test_kb(event: Union[Message, CallbackQuery], state: FSMContext, t
 
 @router.message(Command(commands='test2_kb'))
 @router.callback_query(Text(startswith="#_test2_"))
-async def get_test_kb(event: Union[Message, CallbackQuery], state: FSMContext, tmp_storage: TmpStorage):
+async def get_test2_kb(event: Union[Message, CallbackQuery], state: FSMContext, tmp_storage: TmpStorage):
     """Хендлер для тестової клавіатури MyCustomKeyboard"""
     if isinstance(event, Message):
         await state.set_state(InlineStates.Inline)
