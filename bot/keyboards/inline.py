@@ -40,13 +40,17 @@ class KeyKeyboard:
 
 class ScrollInlineKeyboardGenerator:
     """
-    Створює скролінг об'єкт клавіатури.
-    Приймає параметри:
-        - scroll_buttons: Optional[List[List[InlineKeyboardButton]]] - список списків кнопок прокручування
+    Створює скролінг об'єкт клавіатури. Пагінація клавіатури виконується вертикально.
+    Приймає параметри при ініціації екземпляра класу:
+        - scroll_keys: KeyboardOfInlineButton - список списків кнопок прокручування
+        - dp: Dispatcher | Router | None = None - диспетчер або роутер для уловлювання колбеків
+    Наступні параметри визначаються в класі нащадку:
         - max_rows_number: int - максимальна кількість об'єктів прокручування
-        - start_row: int - початковий рядок прокручування
-        - scroll_step: int - крок прокручування
-    """
+        - callback_pattern: str - шаблон колбеку класу клавіатури нащадка
+    Наступні параметри створюються під час виконання пагінації клавіатури:
+        - pages: PagesForScroll - змінна, що містить об'єкти KeyboardOfInlineButton, які утворюють сторінками пагінації
+        - start_page: int - початкова сторінка пагінації
+        """
     pages: PagesForScroll
     start_page: int
     callback_pattern: str
@@ -59,30 +63,32 @@ class ScrollInlineKeyboardGenerator:
     ) -> None:
         self.scroll_keys = scroll_keys
 
-        # Створюємо кнопки пагінації
-        # Для коректного відловлювання колбеку пагінації та уникнення ситуацій, коли натискання на пагінацію
-        # в одному повідомленні, змінює всі повідомлення з тим самим класом клавіатури
-        # callback_data створюємо за шаблоном "{prefix}scroll_...",
-        # якщо передано dp то prefix = id(self), якщо ні, то prefix = self.callback_pattern
-        if dp:
-            prefix = id(self)
-        else:
-            prefix = self.callback_pattern
-
-        self.up_key = InlineKeyboardButton(text="⬆️", callback_data=f"{prefix}scroll_up")
-        self.fast_up_key = InlineKeyboardButton(text="⏫️", callback_data=f"{prefix}scroll_fast_up")
-        self.down_key = InlineKeyboardButton(text="⬇️", callback_data=f"{prefix}scroll_down")
-        self.fast_down_key = InlineKeyboardButton(text="⏬️", callback_data=f"{prefix}scroll_fast_down")
-
-        # перевіряємо чи було передано до екземпляра класу хендлер або роутер, якщо так, то реєструємо хендлер
-        if dp:
-            self.dp = dp
-            self.dp.callback_query.register(
-                self._scroll_kb, Text(startswith=f"{prefix}scroll_")
-            )
-
         # створюємо сторінки для пагінації
         self.create_pages()
+
+        # Далі створюємо кнопки пагінації.
+        # Для коректного відловлювання колбеку пагінації та уникнення ситуацій, коли натискання на пагінацію
+        # в одному повідомленні, змінює всі повідомлення з тим самим класом клавіатури значення для
+        # callback_data створюємо за шаблоном "{prefix}scroll_...",
+        # якщо передано dp то prefix = id(self), якщо ні, то prefix = self.callback_pattern
+        if len(self.pages) > 1:
+            # перевіряємо чи було передано до екземпляра класу хендлер або роутер, якщо так, то реєструємо хендлер
+            if dp:
+                prefix = id(self)
+                print("PAGINATION: Register pagination handler for callback_query in dp!")
+                self.dp = dp
+                self.dp.callback_query.register(
+                    self._scroll_kb, Text(startswith=f"{prefix}scroll_")
+                )
+            else:
+                prefix = self.callback_pattern
+
+            self.up_key = InlineKeyboardButton(text="⬆️", callback_data=f"{prefix}scroll_up")
+            self.fast_up_key = InlineKeyboardButton(text="⏫️", callback_data=f"{prefix}scroll_fast_up")
+            self.down_key = InlineKeyboardButton(text="⬇️", callback_data=f"{prefix}scroll_down")
+            self.fast_down_key = InlineKeyboardButton(text="⏬️", callback_data=f"{prefix}scroll_fast_down")
+        else:
+            print("PAGINATION: All scroll buttons in one page, check value of max_rows_number!")
 
     async def _scroll_kb(self, call: CallbackQuery):
         """Хендлер обробки колбеків від кнопок вверх та вниз"""
@@ -108,7 +114,11 @@ class ScrollInlineKeyboardGenerator:
             self.pages.append(page)
 
     def _get_current_scroll_keyboard_list(self) -> KeyboardOfInlineButton:
-        """Повертає поточний список скролінгової клавіатури."""
+        """
+        Повертає поточний список скролінгової клавіатури.
+        Формує рядок кнопок пагінації залежно від поточної сторінки self.start_page.
+        Рядок пагінації розміщується перед кнопками скролінг клавіатури.
+        """
         page_index_button = InlineKeyboardButton(text=f"{self.start_page + 1}/{len(self.pages)}", callback_data="pass")
         if len(self.pages) == 1:
             return self.pages[0]
@@ -153,7 +163,7 @@ class ScrollInlineKeyboardGenerator:
 
     def markup_down(self) -> InlineKeyboardMarkup:
         """
-        Повертає клавіатуру на 'один крок назад'.
+        Повертає клавіатуру на 'одну сторінку вниз'.
         Змінює значення внутрішніх змінних, які зберігаються в стані клавіатури після кроку 'вниз'
         і повертає новий об'єкт клавіатури.
         """
@@ -163,7 +173,7 @@ class ScrollInlineKeyboardGenerator:
     def markup_fast_up(self) -> InlineKeyboardMarkup:
         """
         Повертає клавіатуру на першу сторінку пагінації.
-        Змінює значення внутрішніх змінних, які зберігаються в стані клавіатури після кроку 'вверх'
+        Змінює значення внутрішніх змінних, які зберігаються в стані клавіатури після кроку 'швидко_вверх'
         і повертає новий об'єкт клавіатури.
         """
         self.start_page = 0
@@ -172,7 +182,7 @@ class ScrollInlineKeyboardGenerator:
     def markup_fast_down(self) -> InlineKeyboardMarkup:
         """
         Повертає клавіатуру на останню сторінку пагінації.
-        Змінює значення внутрішніх змінних, які зберігаються в стані клавіатури після кроку 'вниз'
+        Змінює значення внутрішніх змінних, які зберігаються в стані клавіатури після кроку 'швидко_вниз'
         і повертає новий об'єкт клавіатури.
         """
         self.start_page = len(self.pages) - 1
@@ -180,29 +190,31 @@ class ScrollInlineKeyboardGenerator:
 
 
 class CombineInlineKeyboardGenerator(ScrollInlineKeyboardGenerator):
-    """Створює комбінований об'єкт клавіатури: скролінг та додаткові верхні та нижні кнопки."""
-
+    """
+    Створює комбінований об'єкт клавіатури: скролінг та додаткові верхні та нижні кнопки.
+    Приймає наступні параметри:
+        - scroll_keys: KeyboardOfInlineButton список скролінг кнопок клавіатури InlineKeyboardButton
+        - top_static_keys: KeyboardOfInlineButton список верхніх кнопок клавіатури InlineKeyboardButton
+        - bottom_static_keys: KeyboardOfInlineButton список верхніх кнопок клавіатури InlineKeyboardButton
+        - dp: Dispatcher | Router | None = None - диспетчер або роутер для уловлювання колбеків
+    """
     def __init__(
             self,
             scroll_keys: KeyboardOfInlineButton,
-            top_static_buttons: KeyboardOfInlineButton = None,
-            bottom_static_buttons: KeyboardOfInlineButton = None,
+            top_static_keys: KeyboardOfInlineButton,
+            bottom_static_keys: KeyboardOfInlineButton,
             dp: Dispatcher | Router | None = None
     ) -> None:
 
         super().__init__(scroll_keys, dp)
 
-        if not top_static_buttons:
-            top_static_buttons = []
-        self.top_static_buttons = top_static_buttons
-        if not bottom_static_buttons:
-            bottom_static_buttons = []
-        self.bottom_static_buttons = bottom_static_buttons
+        self.top_static_keys = top_static_keys
+        self.bottom_static_keys = bottom_static_keys
 
     def markup(self) -> InlineKeyboardMarkup:
         return InlineKeyboardMarkup(
             inline_keyboard=list(
-                chain(self.top_static_buttons, self._get_current_scroll_keyboard_list(), self.bottom_static_buttons)
+                chain(self.top_static_keys, self._get_current_scroll_keyboard_list(), self.bottom_static_keys)
             )
         )
 
@@ -211,28 +223,28 @@ class ContextInlineKeyboardGenerator(CombineInlineKeyboardGenerator, ABC):
     """
     Клас-шаблон для створення клавіатури.
     Параметри класу:
-        - user_language: str - мова користувача
+        - user_language: str - мова користувача, цільова мова перекладу
         - user_id: int - id номер користувача telegram
-        - kb_language: str - мова на якій створений клас клавіатури
+        - kb_language: str - мова на якій створено клас клавіатури
         - callback_pattern: str - шаблон колбеку класу клавіатури
         - initial_text: str - початковий текст при виклику клавіатури
-        - top_buttons: List[List[dict]] | KeyboardOfDict  - список словників верхніх кнопок
-        - scroll_buttons: List[List[dict]] | KeyboardOfDict - список словників кнопок прокручування
-        - bottom_buttons: List[List[dict]] | KeyboardOfDict - список словників нижніх кнопок
-        - max_rows_number: int - максимальна кількість об'єктів прокручування
-        - start_row: int - початковий рядок прокручування
-        - scroll_step: int - крок прокручування
+        - top_buttons: List[List[Dict[str, str]]] | KeyboardOfDict  - список словників верхніх кнопок
+        - scroll_buttons: List[List[Dict[str, str]]] | KeyboardOfDict - список словників скролінг кнопок
+        - bottom_buttons: List[List[Dict[str, str]]] | KeyboardOfDict - список словників нижніх кнопок
+        - max_rows_number: int - максимальна кількість об'єктів на на сторінці пагінації скролінг клавіатури
         - dp: Dispatcher | Router | None = None - диспетчер або роутер для уловлювання колбеків
         """
-
     def __init__(
             self,
             user_language: str,
-            user_id: int,
+            user_id: int = None,
             dp: Dispatcher | Router | None = None
     ) -> None:
 
+        # Мова користувача, використовується як цільова мова перекладу
         self.user_language = user_language
+
+        # Використовуємо за необхідності адаптувати інформацію відносно користувача
         self.user_id = user_id
 
         # змінна, що накопичує в собі повідомлення кнопок, які доступні за ключем callback_data відповідної кнопки
@@ -248,22 +260,23 @@ class ContextInlineKeyboardGenerator(CombineInlineKeyboardGenerator, ABC):
 
         # якщо не визначена функція перекладу, то data_for_translate не перекладається
         if self.translate_function is None:
+            print("TRANSLATOR: translate_function is None, multilanguage keyboard is not support!")
             self.translated_data = data_for_translate
         else:
             self.translated_data = self.translate_function(self_object=self, context_data=data_for_translate)
 
-        self._text = self.translated_data["initial_text"]
+        self.text = self.translated_data["initial_text"]
 
         scroll_keys = self._create_buttons_list(self.translated_data["scroll_buttons"])
-        top_static_buttons = self._create_buttons_list(self.translated_data["top_buttons"])
-        bottom_static_buttons = self._create_buttons_list(self.translated_data["bottom_buttons"])
+        top_static_keys = self._create_buttons_list(self.translated_data["top_buttons"])
+        bottom_static_keys = self._create_buttons_list(self.translated_data["bottom_buttons"])
 
-        super().__init__(scroll_keys, top_static_buttons, bottom_static_buttons, dp)
+        super().__init__(scroll_keys, top_static_keys, bottom_static_keys, dp)
 
     def _create_buttons_list(self, dict_list: KeyboardOfDict) -> KeyboardOfInlineButton:
         """
-        Функція приймає dict_list:List[List[dict]] та повертає об'єкт списку списків з інлайн клавіатурами типу
-        List[List[InlineKeyboardButton]], що необхідно для подальшого формування клавіатури.
+        Функція приймає dict_list:List[List[Dict[str, str]]] та повертає об'єкт списку списків з інлайн клавіатурами
+        типу List[List[InlineKeyboardButton]], що необхідно для подальшого формування клавіатури.
         При створенні клавіатури заповнюється словник даних self.messages, що відповідає за повідомлення при натисканні
         кнопок. Кнопки та повідомлення перекладаються на необхідну мову self.user_language.
         """
@@ -313,7 +326,7 @@ class ContextInlineKeyboardGenerator(CombineInlineKeyboardGenerator, ABC):
     @property
     @abstractmethod
     def max_rows_number(self) -> int:
-        """Абстрактний метод для визначення максимальної кількості рядків клавіатури прокручування."""
+        """Абстрактний метод для визначення максимальної кількості рядків скролінг клавіатури."""
         pass
 
     @property
@@ -324,18 +337,18 @@ class ContextInlineKeyboardGenerator(CombineInlineKeyboardGenerator, ABC):
 
     @property
     @abstractmethod
-    def top_buttons(self) -> KeyboardOfDict:
+    def top_buttons(self) -> KeyboardOfDict | None:
         """Абстрактний метод для визначення верхніх кнопок клавіатури."""
         pass
 
     @property
     @abstractmethod
-    def scroll_buttons(self) -> KeyboardOfDict:
-        """Абстрактний метод для визначення кнопок прокручування клавіатури."""
+    def scroll_buttons(self) -> KeyboardOfDict | None:
+        """Абстрактний метод для визначення скролінг кнопок клавіатури."""
         pass
 
     @property
     @abstractmethod
-    def bottom_buttons(self) -> KeyboardOfDict:
+    def bottom_buttons(self) -> KeyboardOfDict | None:
         """Абстрактний метод для визначення нижніх кнопок клавіатури."""
         pass
