@@ -72,9 +72,9 @@ class MyCustomKeyboard(ContextInlineKeyboardGenerator):
     def callback(self, event: CallbackQuery) -> None:
         """
         Функція обробки колбеків. За необхідності можна перевизначити в похідному класі.
-        За замовчуванням замінює параметр self._text на повідомлення при натисканні кнопки.
+        За замовчуванням замінює параметр self.text на повідомлення при натисканні кнопки.
         """
-        self._text = self.messages[event.data]
+        self.text = self.messages[event.data]
 
 
 class MyCustomKeyboard2(ContextInlineKeyboardGenerator):
@@ -82,7 +82,7 @@ class MyCustomKeyboard2(ContextInlineKeyboardGenerator):
 
     @property
     def initial_text(self) -> str:
-        initial_text = "Привіт, це тестова клавіатура № 2"
+        initial_text = "Привіт, це тестова клавіатура 🙃️"
         return initial_text
 
     @property
@@ -97,7 +97,7 @@ class MyCustomKeyboard2(ContextInlineKeyboardGenerator):
 
     @property
     def max_rows_number(self) -> int:
-        return 3
+        return 2
 
     @property
     def translate_function(self):
@@ -132,6 +132,6 @@ class MyCustomKeyboard2(ContextInlineKeyboardGenerator):
     def callback(self, event: CallbackQuery) -> None:
         """
         Функція обробки колбеків. За необхідності можна перевизначити в похідному класі.
-        За замовчуванням замінює параметр self._text на повідомлення при натисканні кнопки.
+        За замовчуванням замінює параметр self.text на повідомлення при натисканні кнопки.
         """
-        self._text = self.messages[event.data]
+        self.text = self.messages[event.data] + " 🙃️"
