@@ -1,13 +1,8 @@
 from aiogram import Router
-
 from aiogram.filters import Command
-
 from aiogram.types import Message
-
 from utils.database_functions.execute_query import execute_query
-
 from datetime import datetime
-
 from utils.database_functions.connection import con
 
 router = Router()
