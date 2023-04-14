@@ -1,8 +1,9 @@
+from typing import Union
 from aiogram import Router
-from aiogram.utils.keyboard import InlineKeyboardButton
 from aiogram.filters import Command, Text
 from aiogram.types import Message, CallbackQuery
-from keyboards.inline import CombineInlineKeyboardGenerator, KeyKeyboard
+from keyboards.inline import KeyKeyboard
+from keyboards.custom_inline_keyboard import MyCustomKeyboard, MyCustomKeyboard2
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
 from utils.storages import TmpStorage
@@ -16,85 +17,90 @@ class InlineStates(StatesGroup):
 router = Router()
 
 
-@router.message(Command(commands='inline_kb'))
-async def get_inline_kb(event: Message, state: FSMContext, tmp_storage: TmpStorage):
-    """Хендлер реагує на команду /inline_kb та створює об'єкт інлайн клавіатури.
-    Клавіатура складається з 20 скролінгових кнопок та двох статичних.
-    Максимальна кількість 'видимих' скролінг кнопок визначається при створенні об'єкта CombineInlineKeyboardGenerator.
-    Екземпляр клавіатури тимчасово зберігається в сховищі tmp_storage: TmpStorage диспетчера."""
-    print(f"tmp_storage: {tmp_storage}")
-    print(f"type of tmp_storage: {type(tmp_storage)}")
-    print(f"id of tmp_storage: {id(tmp_storage)}")
-    await state.set_state(InlineStates.Inline)
-    num_of_scrolls = 20
-    scroll_key_buttons = [
-        [
-            InlineKeyboardButton(
-                text=f"Inline button {button}",
-                callback_data=f"inline_button_{button}"
-            )
-        ] for button in range(1, num_of_scrolls + 1)
-    ]
+@router.message(Command(commands="test_kb"))
+@router.callback_query(Text(startswith="#_test_"))
+async def get_test_kb(
+    event: Union[Message, CallbackQuery], state: FSMContext, tmp_storage: TmpStorage
+):
+    """Хендлер для тестової клавіатури MyCustomKeyboard"""
+    if isinstance(event, Message):
+        await state.set_state(InlineStates.Inline)
 
-    additional_buttons = [
-        [
-            InlineKeyboardButton(
-                text="Additional button 1",
-                callback_data="additional_button_1"
-            ),
-        ],
-        [
-            InlineKeyboardButton(
-                text="Additional button 2",
-                callback_data="additional_button_2"
-            ),
-        ]
-    ]
+        user_language = event.from_user.language_code
+        user_id = event.from_user.id
+        # user_language = "uk"
 
-    kb = CombineInlineKeyboardGenerator(
-        scroll_keys=scroll_key_buttons,
-        additional_buttons_list=additional_buttons,
-        max_rows_number=5,
-        scroll_step=1
-    )
+        kb = MyCustomKeyboard(user_language=user_language, user_id=user_id, dp=router)
 
-    key = KeyKeyboard(
-        bot_id=bot.id,
-        chat_id=event.chat.id,
-        user_id=event.from_user.id if event.from_user else None,
-        message_id=event.message_id
-    )
-    print(f"key for keyboard is {key}")
-    tmp_storage[key] = kb
-    print(f"tmp_storage after add kb: {tmp_storage}")
-    await event.answer("Це твоя інлайн клавіатура",
-                       reply_markup=tmp_storage[key].markup())
+        key = KeyKeyboard(
+            bot_id=bot.id,
+            chat_id=event.chat.id,
+            user_id=event.from_user.id if event.from_user else None,
+            message_id=event.message_id,
+        )
+        tmp_storage[key] = kb
+
+        await event.answer(kb.text, reply_markup=kb.markup())
+
+    if isinstance(event, CallbackQuery):
+        key = KeyKeyboard(
+            bot_id=bot.id,
+            chat_id=event.message.chat.id,
+            user_id=event.from_user.id if event.from_user else None,
+            message_id=event.message.message_id - 1,
+        )
+        kb = tmp_storage[key]
+
+        kb.callback(event)
+
+        await event.message.edit_text(kb.text, reply_markup=kb.markup())
 
 
-@router.callback_query(Text(text="keyboard_down"))
-async def down_button(event: CallbackQuery, tmp_storage: TmpStorage):
-    """Хендлер відловлює колбек кнопки 'вниз'. Витягує зі сховища об'єкт клавіатури.
-    При натисканні кнопки 'вниз' переходить на наступний рівень пагінації викликом функції markup_down."""
-    key = KeyKeyboard(
-        bot_id=bot.id,
-        chat_id=event.message.chat.id,
-        user_id=event.from_user.id if event.from_user else None,
-        message_id=event.message.message_id - 1
-    )
-    print(f"key for keyboard is {key}")
-    await event.message.edit_text("Клавіатура після кнопки вниз",
-                                  reply_markup=tmp_storage[key].markup_down())
+@router.message(Command(commands="test2_kb"))
+@router.callback_query(Text(startswith="#_test2_"))
+async def get_test2_kb(
+    event: Union[Message, CallbackQuery], state: FSMContext, tmp_storage: TmpStorage
+):
+    """Хендлер для тестової клавіатури MyCustomKeyboard.
+    В даному прикладі ми не передаємо диспетчер в екземпляр класу і повинні відловлювати пагінацію вручну.
+    Мова клавіатури відповідає мові користувача для даного прикладу."""
 
+    if isinstance(event, Message):
+        await state.set_state(InlineStates.Inline)
 
-@router.callback_query(Text(text="keyboard_up"))
-async def up_button(event: CallbackQuery, tmp_storage: TmpStorage):
-    """Хендлер відловлює колбек кнопки 'вверх'. Витягує зі сховища об'єкт клавіатури.
-    При натисканні кнопки 'вверх' переходить на попередній рівень пагінації викликом функції markup_up."""
-    key = KeyKeyboard(
-        bot_id=bot.id,
-        chat_id=event.message.chat.id,
-        user_id=event.from_user.id if event.from_user else None,
-        message_id=event.message.message_id - 1
-    )
-    await event.message.edit_text("Клавіатура після кнопки вверх",
-                                  reply_markup=tmp_storage[key].markup_up())
+        # user_language = event.from_user.language_code
+        user_id = event.from_user.id
+        user_language = "uk"
+
+        kb = MyCustomKeyboard2(user_language=user_language, user_id=user_id)
+
+        key = KeyKeyboard(
+            bot_id=bot.id,
+            chat_id=event.chat.id,
+            user_id=event.from_user.id if event.from_user else None,
+            message_id=event.message_id,
+        )
+        tmp_storage[key] = kb
+
+        await event.answer(kb.text, reply_markup=kb.markup())
+
+    if isinstance(event, CallbackQuery):
+        key = KeyKeyboard(
+            bot_id=bot.id,
+            chat_id=event.message.chat.id,
+            user_id=event.from_user.id if event.from_user else None,
+            message_id=event.message.message_id - 1,
+        )
+        kb = tmp_storage[key]
+        if event.data.endswith("fast_up"):
+            kb.markup_fast_up()
+        elif event.data.endswith("up"):
+            kb.markup_up()
+        elif event.data.endswith("fast_down"):
+            kb.markup_fast_down()
+        elif event.data.endswith("down"):
+            kb.markup_down()
+        else:
+            kb.callback(event)
+
+        await event.message.edit_text(kb.text, reply_markup=kb.markup())
