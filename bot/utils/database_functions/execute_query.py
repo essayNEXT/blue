@@ -7,6 +7,6 @@ def execute_query(query, connection=con):
     cursor = connection.cursor()
     try:
         cursor.execute(query)
-        print('Query executed successfully')
+        print("Query executed successfully")
     except OperationalError as e:
-        print(f'Error{e}')
+        print(f"Error{e}")

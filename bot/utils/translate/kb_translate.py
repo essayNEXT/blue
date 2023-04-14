@@ -4,26 +4,18 @@ from typing import TypeVar
 ButtonDictList = TypeVar("ButtonDictList")
 
 # Імітація бази даних перекладу клавіатури
-translation = {
-    "uk": {},
-    "en": {},
-    "ru": {}
-}
+translation = {"uk": {}, "en": {}, "ru": {}}
 
 # Імітація бази даних одиничних перекладів рядків
-single_translation = {
-    "uk": {},
-    "en": {},
-    "ru": {}
-}
+single_translation = {"uk": {}, "en": {}, "ru": {}}
 
 
 def translate_context(
-        src_lng: str = None,
-        trg_lan: str = None,
-        context_text: str = None,
-        self_object=None,
-        context_data: dict = None
+    src_lng: str = None,
+    trg_lan: str = None,
+    context_text: str = None,
+    self_object=None,
+    context_data: dict = None,
 ):
     """
     Функція перекладу контексту. Приймає два варіанти вхідних даних:
@@ -41,7 +33,9 @@ def translate_context(
     Повертає відповідні об'єкти в залежності від варіанту введених вхідних даних.
     """
 
-    def translate_buttons_list(target_lan: str, buttons_list: ButtonDictList) -> ButtonDictList:
+    def translate_buttons_list(
+        target_lan: str, buttons_list: ButtonDictList
+    ) -> ButtonDictList:
         """Функція перекладу списку списків словників кнопок клавіатури"""
         if buttons_list is None:
             return []
@@ -66,7 +60,10 @@ def translate_context(
                 print(f"TRANSLATOR: {context_text} - is in keyboard object")
                 return context_text
             else:
-                if trg_lan in single_translation.keys() and context_text in single_translation[trg_lan].keys():
+                if (
+                    trg_lan in single_translation.keys()
+                    and context_text in single_translation[trg_lan].keys()
+                ):
                     print(f"TRANSLATOR: {context_text} - is get from db")
                     return single_translation[trg_lan][context_text]
                 else:
@@ -89,16 +86,31 @@ def translate_context(
                 return context_data
 
             # Перевіряємо наявність перекладу context_data для класу клавіатури в базі даних
-            if trg_lan in translation.keys() and str(self_object.__class__) in translation[trg_lan].keys():
+            if (
+                trg_lan in translation.keys()
+                and str(self_object.__class__) in translation[trg_lan].keys()
+            ):
                 print("TRANSLATOR: Context_data - get from db!")
-                return translation[trg_lan][str(self_object.__class__)]  # повинні отримати з БД
+                return translation[trg_lan][
+                    str(self_object.__class__)
+                ]  # повинні отримати з БД
             # Якщо в базі даних переклад відсутній, то виконуємо переклад поелементно
             else:
-                print(f"TRANSLATOR: Google translate every single element of context_data from {src_lng} to {trg_lan}!")
-                context_data["initial_text"] = google_translate(trg_lan, context_data["initial_text"])
-                context_data["top_buttons"] = translate_buttons_list(trg_lan, context_data["top_buttons"])
-                context_data["scroll_buttons"] = translate_buttons_list(trg_lan, context_data["scroll_buttons"])
-                context_data["bottom_buttons"] = translate_buttons_list(trg_lan, context_data["bottom_buttons"])
+                print(
+                    f"TRANSLATOR: Google translate every single element of context_data from {src_lng} to {trg_lan}!"
+                )
+                context_data["initial_text"] = google_translate(
+                    trg_lan, context_data["initial_text"]
+                )
+                context_data["top_buttons"] = translate_buttons_list(
+                    trg_lan, context_data["top_buttons"]
+                )
+                context_data["scroll_buttons"] = translate_buttons_list(
+                    trg_lan, context_data["scroll_buttons"]
+                )
+                context_data["bottom_buttons"] = translate_buttons_list(
+                    trg_lan, context_data["bottom_buttons"]
+                )
 
                 # імітуємо занесення перекладу клавіатур на мову користувача дл бази даних
                 if trg_lan not in translation.keys():

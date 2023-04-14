@@ -17,9 +17,11 @@ class InlineStates(StatesGroup):
 router = Router()
 
 
-@router.message(Command(commands='test_kb'))
+@router.message(Command(commands="test_kb"))
 @router.callback_query(Text(startswith="#_test_"))
-async def get_test_kb(event: Union[Message, CallbackQuery], state: FSMContext, tmp_storage: TmpStorage):
+async def get_test_kb(
+    event: Union[Message, CallbackQuery], state: FSMContext, tmp_storage: TmpStorage
+):
     """Хендлер для тестової клавіатури MyCustomKeyboard"""
     if isinstance(event, Message):
         await state.set_state(InlineStates.Inline)
@@ -34,7 +36,7 @@ async def get_test_kb(event: Union[Message, CallbackQuery], state: FSMContext, t
             bot_id=bot.id,
             chat_id=event.chat.id,
             user_id=event.from_user.id if event.from_user else None,
-            message_id=event.message_id
+            message_id=event.message_id,
         )
         tmp_storage[key] = kb
 
@@ -45,7 +47,7 @@ async def get_test_kb(event: Union[Message, CallbackQuery], state: FSMContext, t
             bot_id=bot.id,
             chat_id=event.message.chat.id,
             user_id=event.from_user.id if event.from_user else None,
-            message_id=event.message.message_id - 1
+            message_id=event.message.message_id - 1,
         )
         kb = tmp_storage[key]
 
@@ -54,9 +56,11 @@ async def get_test_kb(event: Union[Message, CallbackQuery], state: FSMContext, t
         await event.message.edit_text(kb.text, reply_markup=kb.markup())
 
 
-@router.message(Command(commands='test2_kb'))
+@router.message(Command(commands="test2_kb"))
 @router.callback_query(Text(startswith="#_test2_"))
-async def get_test2_kb(event: Union[Message, CallbackQuery], state: FSMContext, tmp_storage: TmpStorage):
+async def get_test2_kb(
+    event: Union[Message, CallbackQuery], state: FSMContext, tmp_storage: TmpStorage
+):
     """Хендлер для тестової клавіатури MyCustomKeyboard.
     В даному прикладі ми не передаємо диспетчер в екземпляр класу і повинні відловлювати пагінацію вручну.
     Мова клавіатури відповідає мові користувача для даного прикладу."""
@@ -74,7 +78,7 @@ async def get_test2_kb(event: Union[Message, CallbackQuery], state: FSMContext, 
             bot_id=bot.id,
             chat_id=event.chat.id,
             user_id=event.from_user.id if event.from_user else None,
-            message_id=event.message_id
+            message_id=event.message_id,
         )
         tmp_storage[key] = kb
 
@@ -85,7 +89,7 @@ async def get_test2_kb(event: Union[Message, CallbackQuery], state: FSMContext, 
             bot_id=bot.id,
             chat_id=event.message.chat.id,
             user_id=event.from_user.id if event.from_user else None,
-            message_id=event.message.message_id - 1
+            message_id=event.message.message_id - 1,
         )
         kb = tmp_storage[key]
         if event.data.endswith("fast_up"):
