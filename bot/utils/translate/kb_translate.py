@@ -1,4 +1,4 @@
-from googletrans import Translator
+from deep_translator import GoogleTranslator
 from typing import TypeVar
 
 ButtonDictList = TypeVar("ButtonDictList")
@@ -12,7 +12,7 @@ single_translation = {"uk": {}, "en": {}, "ru": {}}
 
 def translate_context(
     src_lng: str = None,
-    trg_lan: str = None,
+    trg_lng: str = None,
     context_text: str = None,
     self_object=None,
     context_data: dict = None,
@@ -21,7 +21,7 @@ def translate_context(
     Функція перекладу контексту. Приймає два варіанти вхідних даних:
     1. Переклад тексту:
         - src_lng: str - мова об'єкту, що перекладається
-        - trg_lan: str - цільова мова перекладу
+        - trg_lng: str - цільова мова перекладу
         - context_text: str - текст, що необхідно перекласти
     2. Переклад контекстних даних екземпляру клавіатури:
         - self_object - екземпляр класу клавіатури
@@ -34,7 +34,7 @@ def translate_context(
     """
 
     def translate_buttons_list(
-        target_lan: str, buttons_list: ButtonDictList
+        source_lng: str, target_lng: str, buttons_list: ButtonDictList
     ) -> ButtonDictList:
         """Функція перекладу списку списків словників кнопок клавіатури"""
         if buttons_list is None:
@@ -42,11 +42,13 @@ def translate_context(
         new_list = []
         for item in buttons_list:
             if isinstance(item, list):
-                new_list.append(translate_buttons_list(target_lan, item))
+                new_list.append(translate_buttons_list(source_lng, target_lng, item))
             elif isinstance(item, dict):
-                item["text"] = google_translate(target_lan, item["text"])
+                item["text"] = google_translate(source_lng, target_lng, item["text"])
                 if "message" in item.keys():
-                    item["message"] = google_translate(target_lan, item["message"])
+                    item["message"] = google_translate(
+                        source_lng, target_lng, item["message"]
+                    )
                 new_list.append(item)
         return new_list
 
@@ -56,66 +58,66 @@ def translate_context(
 
         # Варіант 1
         elif context_text:
-            if src_lng == trg_lan:
+            if src_lng == trg_lng:
                 print(f"TRANSLATOR: {context_text} - is in keyboard object")
                 return context_text
             else:
                 if (
-                    trg_lan in single_translation.keys()
-                    and context_text in single_translation[trg_lan].keys()
+                    trg_lng in single_translation.keys()
+                    and context_text in single_translation[trg_lng].keys()
                 ):
                     print(f"TRANSLATOR: {context_text} - is get from db")
-                    return single_translation[trg_lan][context_text]
+                    return single_translation[trg_lng][context_text]
                 else:
                     print(f"TRANSLATOR: {context_text} - is get from Google translate")
-                    text = google_translate(trg_lan, context_text)
+                    text = google_translate(src_lng, trg_lng, context_text)
 
                     # імітація занесення перекладу до БД single_translation
-                    if trg_lan not in single_translation.keys():
-                        single_translation[trg_lan] = {}
-                    single_translation[trg_lan][context_text] = text
+                    if trg_lng not in single_translation.keys():
+                        single_translation[trg_lng] = {}
+                    single_translation[trg_lng][context_text] = text
                     return text
 
         # Варіант 2
         elif self_object and context_data:
             src_lng = self_object.kb_language
-            trg_lan = self_object.user_language
+            trg_lng = self_object.user_language
 
-            if src_lng == trg_lan:
+            if src_lng == trg_lng:
                 print("TRANSLATOR: Don`t need to translate!")
                 return context_data
 
             # Перевіряємо наявність перекладу context_data для класу клавіатури в базі даних
             if (
-                trg_lan in translation.keys()
-                and str(self_object.__class__) in translation[trg_lan].keys()
+                trg_lng in translation.keys()
+                and str(self_object.__class__) in translation[trg_lng].keys()
             ):
                 print("TRANSLATOR: Context_data - get from db!")
-                return translation[trg_lan][
+                return translation[trg_lng][
                     str(self_object.__class__)
                 ]  # повинні отримати з БД
             # Якщо в базі даних переклад відсутній, то виконуємо переклад поелементно
             else:
                 print(
-                    f"TRANSLATOR: Google translate every single element of context_data from {src_lng} to {trg_lan}!"
+                    f"TRANSLATOR: Google translate every single element of context_data from {src_lng} to {trg_lng}!"
                 )
                 context_data["initial_text"] = google_translate(
-                    trg_lan, context_data["initial_text"]
+                    src_lng, trg_lng, context_data["initial_text"]
                 )
                 context_data["top_buttons"] = translate_buttons_list(
-                    trg_lan, context_data["top_buttons"]
+                    src_lng, trg_lng, context_data["top_buttons"]
                 )
                 context_data["scroll_buttons"] = translate_buttons_list(
-                    trg_lan, context_data["scroll_buttons"]
+                    src_lng, trg_lng, context_data["scroll_buttons"]
                 )
                 context_data["bottom_buttons"] = translate_buttons_list(
-                    trg_lan, context_data["bottom_buttons"]
+                    src_lng, trg_lng, context_data["bottom_buttons"]
                 )
 
                 # імітуємо занесення перекладу клавіатур на мову користувача дл бази даних
-                if trg_lan not in translation.keys():
-                    translation[trg_lan] = {}
-                translation[trg_lan][str(self_object.__class__)] = context_data
+                if trg_lng not in translation.keys():
+                    translation[trg_lng] = {}
+                translation[trg_lng][str(self_object.__class__)] = context_data
 
                 return context_data
 
@@ -125,11 +127,12 @@ def translate_context(
         print(f"TRANSLATOR: Error {e}")
 
 
-def google_translate(trg_lan: str, input_text: str) -> str:
+def google_translate(src_lng: str, trg_lng: str, input_text: str) -> str:
     """Функція перекладу тексту за допомогою перекладача гугл.
     Приймає:
-        - trg_lan: str - цільова мова перекладу
+        - src_lng: str - мова об'єкту, що перекладається
+        - trg_lng: str - цільова мова перекладу
         - input_text: str - текст для перекладу
     Повертає рядок з перекладеним текстом"""
-    tr = Translator().translate(input_text, dest=trg_lan)
-    return tr.text
+    tr = GoogleTranslator(source=src_lng, target=trg_lng).translate(input_text)
+    return tr
